@@ -61,15 +61,13 @@ export const CvPage: React.FC = () => {
             <span className="text-xs font-bold text-educaro-primary">German Standard DIN 5008 CV</span>
             <ProvenanceBadge provenance={Provenance.AI_GENERATED} sourceText="Compiled by CV Generation Agent" />
           </div>
-          <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-educaro-main hover:bg-educaro-secondary text-xs font-semibold text-educaro-primary border border-educaro-border transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-xs transition-colors"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Print / Save as PDF</span>
+              <Download className="w-3.5 h-3.5" />
+              <span>Download PDF (Print)</span>
             </button>
-          </div>
         </div>
 
         {loading || !cv ? (
@@ -216,7 +214,7 @@ export const CvPage: React.FC = () => {
             ← Back to Qualification
           </button>
           <button
-            onClick={() => navigate('/journey/payment')}
+            onClick={() => navigate('/journey/next-steps')}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs sm:text-sm font-semibold shadow-xs transition-colors"
           >
             <span>Proceed to Recommended Next Steps</span>
