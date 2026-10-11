@@ -1,117 +1,23 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Pool, QueryResult } from 'pg';
-import * as path from 'path';
-import * as fs from 'fs';
 
 /**
- * SQLitePersistentAdapter — wraps better-sqlite3 behind a pg-compatible
- * pool interface (query(text, params) → { rows, rowCount }).
- *
- * This is the fallback used when PostgreSQL is unreachable.
- * Data is written to a real .db file on disk — it SURVIVES server restarts.
- *
- * SQL dialect differences bridged:
- *  - $1/$2 positional params → ? placeholders
- *  - CURRENT_TIMESTAMP → datetime('now')  (SQLite built-in)
- *  - SERIAL / BIGSERIAL → INTEGER (SQLite auto-increment)
- *  - ON CONFLICT ... DO UPDATE (upsert) is supported natively since SQLite 3.24
- *  - BOOLEAN → INTEGER 0/1 (SQLite has no native boolean type)
- *  - RETURNING clause → handled via lastInsertRowid + a follow-up SELECT
+ * In-memory PostgreSQL engine (pg-mem) fallback.
+ * Provides dialect-perfect PostgreSQL in pure JS.
+ * Zero native C++ compilation or DLL crashes on Windows.
  */
-class SqlitePool {
-  private db: any;
-  private readonly logger = new Logger('SqlitePool');
-
-  constructor(dbPath: string) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Database = require('better-sqlite3');
-    this.db = new Database(dbPath);
-    // WAL mode for concurrent read performance
-    this.db.pragma('journal_mode = WAL');
-    this.db.pragma('foreign_keys = ON');
-    this.logger.log(`SQLite persistent database opened at: ${dbPath}`);
-  }
-
-  /** Convert postgres $1,$2 params → SQLite ? placeholders and map values array */
-  private pgToSqlite(sql: string, originalValues: any[]): { converted: string, mappedValues: any[] } {
-    const mappedValues: any[] = [];
-    let converted = sql.replace(/\$(\d+)/g, (match, digits) => {
-      const idx = parseInt(digits, 10) - 1;
-      mappedValues.push(originalValues[idx]);
-      return '?';
-    });
-
-    const isDDL = /^\s*(CREATE|DROP|ALTER)\s/i.test(converted);
-    converted = converted
-      // CURRENT_TIMESTAMP is supported by SQLite natively in DEFAULT — only convert in DML
-      .replace(/\bCURRENT_TIMESTAMP\b/g, isDDL ? 'CURRENT_TIMESTAMP' : "datetime('now')")
-      // Postgres boolean literals (in DML/queries)
-      .replace(/(?<![A-Z_])TRUE\b/g, '1')
-      .replace(/(?<![A-Z_])FALSE\b/g, '0')
-      // VARCHAR(n) → TEXT, BIGSERIAL → INTEGER, SERIAL → INTEGER
-      .replace(/VARCHAR\(\d+\)/gi, 'TEXT')
-      .replace(/\bBIGSERIAL\b/gi, 'INTEGER')
-      .replace(/\bSERIAL\b/gi, 'INTEGER')
-      // BOOLEAN type declaration → INTEGER
-      .replace(/\bBOOLEAN\b/gi, 'INTEGER')
-      // NOW() function → datetime('now')
-      .replace(/\bNOW\(\)/gi, "datetime('now')")
-      // interval arithmetic: NOW() + INTERVAL '90 days' → datetime('now', '+90 days')
-      .replace(/datetime\('now'\)\s*\+\s*INTERVAL\s*'(\d+)\s*days?'/gi, "datetime('now', '+$1 days')")
-      // EXTRACT(DAY FROM ...) → julian day arithmetic
-      .replace(/EXTRACT\s*\(\s*DAY\s+FROM\s+\(([^)]+)\)\s*\)/gi, "CAST((julianday($1) - julianday(datetime('now'))) AS INTEGER)");
-      
-    return { converted, mappedValues };
-  }
-
-  async query<T = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
-    const { converted, mappedValues } = this.pgToSqlite(text, params ?? []);
-    const values = mappedValues;
-
-    try {
-      const trimmed = converted.trim().toUpperCase();
-
-      // Multi-statement DDL (CREATE TABLE, etc.) — SQLite prepare() only handles one at a time
-      // Split on semicolons and run each individually
-      const isDDL = /^\s*(CREATE|DROP|ALTER)\s/i.test(converted.trim());
-      if (isDDL && values.length === 0) {
-        const statements = converted
-          .split(';')
-          .map(s => s.trim())
-          .filter(s => s.length > 0);
-        for (const stmt of statements) {
-          this.db.prepare(stmt).run();
-        }
-        return { rows: [] as T[], rowCount: 0 } as QueryResult<T>;
-      }
-
-      if (trimmed.startsWith('SELECT') || trimmed.startsWith('WITH') || trimmed.includes('RETURNING')) {
-        const stmt = this.db.prepare(converted);
-        const rows = stmt.all(...values) as any[];
-        for (const r of rows) {
-          if (r && typeof r === 'object') {
-            if (r['COUNT(*)'] !== undefined && r.count === undefined) {
-              r.count = r['COUNT(*)'];
-            }
-          }
-        }
-        return { rows, rowCount: rows.length } as QueryResult<T>;
-      }
-
-      // Plain DML
-      const stmt = this.db.prepare(converted);
-      const info = stmt.run(...values);
-      return { rows: [] as T[], rowCount: info.changes } as QueryResult<T>;
-    } catch (err: any) {
-      this.logger.error(`SQLite query error: ${err.message}\nSQL: ${converted}`);
-      throw err;
-    }
-  }
-
-  async end() {
-    this.db?.close();
-  }
+function createPgMemPool(logger: Logger): Pool {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { newDb } = require('pg-mem');
+  const db = newDb();
+  db.public.registerFunction({
+    name: 'current_database',
+    implementation: () => 'educaro_db',
+  });
+  const { Pool: MemPool } = db.adapters.createPg();
+  logger.log('In-memory PostgreSQL engine (pg-mem) initialized successfully');
+  return new MemPool();
 }
 
 @Injectable()
@@ -127,24 +33,24 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       this.configService.get<string>('DATABASE_URL') ||
       'postgresql://educaro:educaropassword@localhost:5432/educaro_db?schema=public';
 
+    const realPool = new Pool({
+      connectionString,
+      connectionTimeoutMillis: 1500,
+    });
+    realPool.on('error', () => {});
+
     try {
-      const realPool = new Pool({
-        connectionString,
-        connectionTimeoutMillis: 1500,
-      });
       await realPool.query('SELECT 1');
       this.pool = realPool;
       this.isInMemory = false;
       this.logger.log('Connected to PostgreSQL container on port 5432');
-    } catch (err) {
+    } catch (err: any) {
+      await realPool.end().catch(() => {});
       this.logger.warn(
-        `PostgreSQL port 5432 not reachable (${err.message}). Falling back to persistent SQLite database (data survives restarts).`
+        `PostgreSQL port 5432 not reachable (${err.message}). Falling back to in-memory PostgreSQL engine (pg-mem).`
       );
-      // Store the SQLite file next to the compiled API entry point
-      const dbDir = path.resolve(__dirname, '..', '..', '..');
-      const dbPath = path.join(dbDir, 'educaro_local.db');
-      this.pool = new SqlitePool(dbPath);
-      this.isInMemory = false; // SQLite IS persistent — not in-memory
+      this.pool = createPgMemPool(this.logger);
+      this.isInMemory = true;
     }
 
     await this.initSchema();
@@ -310,8 +216,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE INDEX IF NOT EXISTS idx_purchases_user_status ON purchases(user_id, status);
-
       `);
 
       await this.query(`
@@ -322,7 +226,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE INDEX IF NOT EXISTS idx_cvs_user ON cvs(user_id);
       `);
 
       await this.query(`
@@ -343,9 +246,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE INDEX IF NOT EXISTS idx_recommendations_user_status ON recommendations(user_id, status);
-        CREATE INDEX IF NOT EXISTS idx_recommendations_user_priority ON recommendations(user_id, priority);
-        CREATE INDEX IF NOT EXISTS idx_recommendations_user_rule ON recommendations(user_id, rule_id);
       `);
 
       await this.query(`
@@ -356,7 +256,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           label_hi VARCHAR(255),
           "order" INTEGER NOT NULL DEFAULT 0
         );
+      `);
 
+      await this.query(`
         CREATE TABLE IF NOT EXISTS faq_items (
           id VARCHAR(64) PRIMARY KEY,
           category_id VARCHAR(64) REFERENCES faq_categories(id) ON DELETE CASCADE,
@@ -371,7 +273,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         );
       `);
 
-      // Consultant bookings & call log tables (PRD Section 8.3 – Consultant Support)
       await this.query(`
         CREATE TABLE IF NOT EXISTS consultant_bookings (
           id            TEXT PRIMARY KEY,
@@ -384,8 +285,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           created_at    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           updated_at    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
-        CREATE INDEX IF NOT EXISTS idx_bookings_user ON consultant_bookings(user_id);
+      `);
 
+      await this.query(`
         CREATE TABLE IF NOT EXISTS consultant_call_logs (
           id            TEXT PRIMARY KEY,
           user_id       TEXT NOT NULL,
@@ -393,11 +295,10 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           initiated_at  TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           booking_id    TEXT
         );
-        CREATE INDEX IF NOT EXISTS idx_call_logs_user ON consultant_call_logs(user_id);
       `);
 
-      this.logger.log('Database tables verified/initialized successfully (users, applicants, profile_fields, agent_events, documents, inconsistencies, entitlements, payments, video_intros, purchases, recommendations, faq, consultant_bookings, consultant_call_logs)');
-    } catch (err) {
+      this.logger.log('Database tables verified/initialized successfully in PostgreSQL/pg-mem engine');
+    } catch (err: any) {
       this.logger.error('Failed to initialize database schema', err.stack);
     }
   }
