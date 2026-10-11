@@ -1,0 +1,136 @@
+{
+  "STUDY": {
+    "pathway": "STUDY",
+    "title": "University Study in Germany (Bachelor / Master)",
+    "description": "Degree studies at state-accredited German universities and colleges",
+    "rules": [
+      {
+        "ruleId": "study_degree_level",
+        "name": "Recognized Academic Qualification",
+        "field": "degreeName",
+        "aliases": ["highestDegree", "degree"],
+        "operator": "exists",
+        "expectedValue": "Bachelor or Master Degree",
+        "weight": "CRITICAL",
+        "description": "Applicant must hold or be completing a recognized Bachelor or 12th+qualification from an accredited Indian institution (Anabin H+).",
+        "assumption": "Indian 3-year or 4-year Bachelor recognition status under Anabin H+ to be confirmed with Educaro consultant.",
+        "remediation": "Obtain APS India certificate and Anabin university recognition proof."
+      },
+      {
+        "ruleId": "study_field_of_study",
+        "name": "Subject-Consecutive Field of Study",
+        "field": "fieldOfStudy",
+        "aliases": ["field", "major"],
+        "operator": "exists",
+        "expectedValue": "STEM, Computer Science, Engineering, Business, or related",
+        "weight": "CRITICAL",
+        "description": "German public universities require consecutive subject alignment with prior bachelor studies.",
+        "assumption": "Module credit alignment (ECTS) with target German curriculum to be confirmed with Educaro consultant.",
+        "remediation": "Map Indian syllabus transcript to German ECTS curriculum requirements."
+      },
+      {
+        "ruleId": "study_german_level",
+        "name": "Minimum German Language Readiness",
+        "field": "germanLevel",
+        "aliases": ["german"],
+        "operator": "cefr_gte",
+        "expectedValue": "B1",
+        "weight": "IMPORTANT",
+        "description": "Minimum CEFR German B1 level recommended for visa interview, university application, and daily living.",
+        "assumption": "Conditional admission is viable at B1 with Educaro German language preparation in Germany; confirm with consultant.",
+        "remediation": "Enroll in Educaro Goethe B1/B2 intensive preparation track."
+      },
+      {
+        "ruleId": "study_english_level",
+        "name": "English Proficiency",
+        "field": "englishLevel",
+        "aliases": ["english"],
+        "operator": "cefr_gte",
+        "expectedValue": "B2",
+        "weight": "IMPORTANT",
+        "description": "English proficiency B2 (IELTS 6.5 or equivalent) required for English-taught Master programs.",
+        "assumption": "Medium of Instruction (MOI) letter acceptance varies by university; confirm with Educaro consultant.",
+        "remediation": "Provide IELTS Academic 6.5+ or official college Medium of Instruction certificate."
+      },
+      {
+        "ruleId": "study_academic_gpa",
+        "name": "Academic Performance / CGPA",
+        "field": "gradeOrGpa",
+        "aliases": ["gpa", "cgpa", "score"],
+        "operator": "exists",
+        "expectedValue": "CGPA 6.5+ / 65% / German grade 2.5 or better",
+        "weight": "IMPORTANT",
+        "description": "Solid academic record meeting German NC (Numerus Clausus) admissions cutoffs.",
+        "assumption": "German equivalent grade conversion using Modified Bavarian Formula to be confirmed with Educaro consultant.",
+        "remediation": "Submit official semester marksheets and provisional degree certificate."
+      }
+    ]
+  },
+  "BLUE_CARD": {
+    "pathway": "BLUE_CARD",
+    "title": "EU Blue Card & Skilled Worker Immigration",
+    "description": "Direct employment pathway for qualified Indian professionals in German tech and engineering",
+    "rules": [
+      {
+        "ruleId": "bluecard_degree_recognition",
+        "name": "Recognized Higher Education Degree",
+        "field": "degreeName",
+        "aliases": ["highestDegree", "degree"],
+        "operator": "exists",
+        "expectedValue": "Recognized tertiary degree (B.Tech / B.E. / M.Sc / MCA)",
+        "weight": "CRITICAL",
+        "description": "Applicant must hold a higher education degree comparable to a German university degree.",
+        "assumption": "ZAB Statement of Comparability or Anabin degree recognition to be confirmed with Educaro consultant.",
+        "remediation": "Submit degree certificate for ZAB comparability or Anabin database verification."
+      },
+      {
+        "ruleId": "bluecard_years_experience",
+        "name": "Relevant Professional Experience",
+        "field": "yearsOfExperience",
+        "aliases": ["experience", "workExperience"],
+        "operator": "numeric_gte",
+        "expectedValue": 2,
+        "weight": "CRITICAL",
+        "description": "At least 2 years of verifiable professional experience in a relevant technical or engineering field.",
+        "assumption": "Experience letters and pay slips must match German skilled worker classification; confirm with consultant.",
+        "remediation": "Compile stamped experience letters, reliving letters, and recent salary slips."
+      },
+      {
+        "ruleId": "bluecard_field_of_study",
+        "name": "In-Demand Field (MINT / STEM / IT)",
+        "field": "fieldOfStudy",
+        "aliases": ["field", "major"],
+        "operator": "matches",
+        "expectedValue": "Computer Science, Software, IT, Engineering, Mathematics, Data",
+        "weight": "CRITICAL",
+        "description": "Target field belongs to German shortage occupations (MINT/IT) eligible for lowered salary thresholds.",
+        "assumption": "Specialist shortage occupations qualify for lower Blue Card threshold (€45,300); confirm with consultant.",
+        "remediation": "Highlight software architecture and engineering competencies in CV."
+      },
+      {
+        "ruleId": "bluecard_german_level",
+        "name": "German Language Basics",
+        "field": "germanLevel",
+        "aliases": ["german"],
+        "operator": "cefr_gte",
+        "expectedValue": "A2",
+        "weight": "IMPORTANT",
+        "description": "CEFR A2 German enables smoother relocation, integration, and fast-track PR after 27 months (21 months with B1).",
+        "assumption": "English-speaking tech positions in Germany do not strictly mandate B1 for visa, but A2 strengthens application; confirm with consultant.",
+        "remediation": "Complete A2 German certificate before embassy visa appointment."
+      },
+      {
+        "ruleId": "bluecard_job_offer_salary",
+        "name": "Job Offer / Salary Threshold Viability",
+        "field": "jobOfferSalary",
+        "aliases": ["salary", "jobOffer", "currentRole"],
+        "operator": "exists",
+        "expectedValue": "Target salary €45,300+ (MINT) or professional IT candidate profile",
+        "weight": "IMPORTANT",
+        "description": "Profile matches German employment criteria with prospective salary meeting statutory EU Blue Card minimums.",
+        "assumption": "Statutory salary thresholds updated annually by Federal Interior Ministry (BMI); confirm with consultant.",
+        "remediation": "Target German tech recruiters and Educaro partner placement channels."
+      }
+    ]
+  }
+}
