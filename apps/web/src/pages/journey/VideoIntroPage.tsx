@@ -40,8 +40,9 @@ export const VideoIntroPage: React.FC = () => {
   const { refreshJourney } = useJourney();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'record' | 'upload'>('record');
+  const [activeTab, setActiveTab] = useState<'transcript' | 'upload' | 'record'>('transcript');
   const [isTraceOpen, setIsTraceOpen] = useState(false);
+  const [transcriptInput, setTranscriptInput] = useState<string>('');
 
   // Webcam recording state
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -276,6 +277,56 @@ export const VideoIntroPage: React.FC = () => {
     }
   };
 
+  const sampleRahulTranscript =
+    'Hi, I am Rahul Sharma. I completed my B.Tech in Computer Science in 2021 and have 3 years of experience as a software engineer in India. My motivation for moving to Germany is to pursue advanced opportunities in software engineering and cloud systems, while learning German (currently at B1 Goethe-Zertifikat) and building my long-term career under the EU Blue Card program.';
+
+  const handleProcessTranscript = async (textToProcess?: string) => {
+    const text = textToProcess || transcriptInput;
+    if (!text.trim()) {
+      alert('Please enter or paste your introduction transcript first.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setProcessingStage('Extracting motivation, goals, and background via LLM...');
+
+    try {
+      const response = await fetch('/api/video/transcript', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ transcript: text }),
+      });
+
+      if (!response.ok) {
+        let message = '';
+        try {
+          const errData = await response.json();
+          message = errData.message;
+        } catch {
+          // fallback
+        }
+        throw new Error(message || `Failed to process transcript (HTTP ${response.status})`);
+      }
+
+      const data = await response.json();
+      setTranscript(data.transcript);
+      setExtractedFields(data.extractedFields || []);
+      setPreviewVideoUrl(data.videoUrl);
+      setModelUsed('OpenAI-compatible LLM');
+      setIsCompleted(true);
+
+      await refreshJourney();
+    } catch (err: any) {
+      console.error('Transcript processing error:', err);
+      alert('Error during transcript extraction: ' + (err.message || 'Please try again.'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-educaro-main flex flex-col text-educaro-primary">
       <Navbar onToggleTracePanel={() => setIsTraceOpen(!isTraceOpen)} isTraceOpen={isTraceOpen} />
@@ -326,23 +377,23 @@ export const VideoIntroPage: React.FC = () => {
           <div className="bg-educaro-main rounded-3xl border border-educaro-border p-6 sm:p-8 shadow-xs space-y-6">
             
             {/* Tab Selection */}
-            <div className="flex items-center justify-between border-b border-educaro-border pb-4">
-              <div className="flex items-center gap-2 bg-educaro-main p-1 rounded-2xl border border-educaro-border">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-educaro-border pb-4 gap-3">
+              <div className="flex items-center gap-2 bg-educaro-main p-1 rounded-2xl border border-educaro-border flex-wrap">
                 <button
                   type="button"
                   data-button-size="compact"
                   onClick={() => {
-                    setActiveTab('record');
-                    if (!stream && !recordedBlob) startCamera();
+                    setActiveTab('transcript');
+                    stopCamera();
                   }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeTab === 'record'
+                    activeTab === 'transcript'
                       ? 'bg-educaro-accent text-black shadow-xs'
                       : 'text-educaro-muted hover:text-educaro-primary'
                   }`}
                 >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Record with Webcam</span>
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Paste Transcript (Primary)</span>
                 </button>
                 <button
                   type="button"
@@ -358,22 +409,84 @@ export const VideoIntroPage: React.FC = () => {
                   }`}
                 >
                   <Upload className="w-3.5 h-3.5" />
-                  <span>Upload Video File</span>
+                  <span>Upload Video</span>
+                </button>
+                <button
+                  type="button"
+                  data-button-size="compact"
+                  onClick={() => {
+                    setActiveTab('record');
+                    if (!stream && !recordedBlob) startCamera();
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === 'record'
+                      ? 'bg-educaro-accent text-black shadow-xs'
+                      : 'text-educaro-muted hover:text-educaro-primary'
+                  }`}
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Webcam</span>
                 </button>
               </div>
 
               {/* Sample Intro Button */}
               <button
                 type="button"
-                onClick={() => handleProcessVideo(true)}
+                onClick={() => {
+                  setTranscriptInput(sampleRahulTranscript);
+                  handleProcessTranscript(sampleRahulTranscript);
+                }}
                 disabled={isProcessing}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-educaro-icon hover:bg-[#E5E7EB] text-xs font-semibold text-educaro-accent border border-educaro-border transition-colors"
-                title="Runs instant pipeline on pre-packaged applicant video sample"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-educaro-icon hover:bg-[#E5E7EB] text-xs font-semibold text-educaro-accent border border-educaro-border transition-colors cursor-pointer"
+                title="Runs instant pipeline on pre-packaged applicant transcript sample"
               >
                 <Sparkles className="w-3.5 h-3.5 text-educaro-accent" />
-                <span>Try Sample Video (1-Click)</span>
+                <span>Fill Rahul Sharma Transcript (1-Click)</span>
               </button>
             </div>
+
+            {/* TAB 0: TRANSCRIPT PASTE (PRIMARY) */}
+            {activeTab === 'transcript' && (
+              <div className="space-y-4 max-w-3xl mx-auto">
+                <div className="bg-educaro-main border border-educaro-border rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-educaro-primary flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-educaro-accent" />
+                      <span>Applicant Spoken Transcript</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setTranscriptInput(sampleRahulTranscript)}
+                      className="text-[11px] text-educaro-accent hover:underline font-semibold"
+                    >
+                      Use Demo Persona Sample
+                    </button>
+                  </div>
+                  <textarea
+                    rows={6}
+                    value={transcriptInput}
+                    onChange={(e) => setTranscriptInput(e.target.value)}
+                    placeholder="Paste your spoken self-introduction or speech transcript here... (e.g., Hi, I am Rahul Sharma. I have a B.Tech in CS and 3 years software engineering experience. My goal is to work in Germany...)"
+                    className="w-full text-xs p-3 rounded-xl border border-educaro-border bg-white text-educaro-primary focus:outline-hidden focus:ring-2 focus:ring-educaro-accent/40 leading-relaxed font-sans"
+                  />
+                  <p className="text-[11px] text-educaro-muted">
+                    Our AI parses your background, motivation, and career goals directly from this text and maps them with <span className="font-semibold text-educaro-accent">AI-Extracted</span> provenance.
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleProcessTranscript()}
+                    disabled={isProcessing || !transcriptInput.trim()}
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Extract Motivation & Goals via AI →</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* TAB 1: WEBCAM RECORDING */}
             {activeTab === 'record' && (
