@@ -1,0 +1,18 @@
+:root {
+  --color-bg-main: #FFFFFF;
+  --color-bg-secondary: #F7FAF8;
+  --color-bg-card: #FFFFFF;
+  --color-bg-icon: #ECFDF5;
+  --color-text-primary: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-accent: #15803D;
+  --color-border: #E5E7EB;
+  --color-button: #15803D;
+  --color-button-text: #FFFFFF;
+
+  /* Provenance badge tokens */
+  --badge-verified: #10B981;
+  --badge-applicant: #3B82F6;
+  --badge-extracted: #D97706;
+  --badge-generated: #8B5CF6;
+}
