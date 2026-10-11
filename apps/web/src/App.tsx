@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import { JourneyProvider } from './context/JourneyContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { IntroAnimation } from './components/IntroAnimation';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -16,31 +14,22 @@ import { VideoIntroPage } from './pages/journey/VideoIntroPage';
 import { DocumentsPage } from './pages/journey/DocumentsPage';
 import { QualificationPage } from './pages/journey/QualificationPage';
 import { CvPage } from './pages/journey/CvPage';
-import { PaymentPage } from './pages/journey/PaymentPage';
 import { NextStepsPage } from './pages/journey/NextStepsPage';
-import { ConsultantPage } from './pages/ConsultantPage';
 import { RecommendationsDashboard } from './pages/journey/RecommendationsDashboard';
 import { KnowledgeBaseAdminPage } from './pages/admin/KnowledgeBaseAdminPage';
 import { CandidateDetailsPage } from './pages/CandidateDetailsPage';
 import { GermanLearningPathPage } from './pages/GermanLearningPathPage';
-import { CheckoutPage } from './pages/CheckoutPage';
 
 export const App: React.FC = () => {
-  const [introFinished, setIntroFinished] = useState(false);
-
   return (
     <BrowserRouter>
-      <AnimatePresence>
-        {!introFinished && <IntroAnimation onComplete={() => setIntroFinished(true)} />}
-      </AnimatePresence>
-      <div className={introFinished ? 'opacity-100' : 'opacity-0'}>
-        <AuthProvider>
-          <JourneyProvider>
+      <AuthProvider>
+        <JourneyProvider>
           <Routes>
             {/* Homepage */}
             <Route path="/" element={<HomePage />} />
 
-            {/* Authentication (PRD Section 8.2: dedicated sign up / login page) */}
+            {/* Authentication */}
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
             <Route path="/signup" element={<Navigate to="/auth?mode=signup" replace />} />
@@ -103,14 +92,6 @@ export const App: React.FC = () => {
               }
             />
             <Route
-              path="/journey/payment"
-              element={
-                <ProtectedRoute>
-                  <PaymentPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/journey/next-steps"
               element={
                 <ProtectedRoute>
@@ -135,7 +116,7 @@ export const App: React.FC = () => {
               }
             />
 
-            {/* Consolidated Candidate Details (PRD Section 11) */}
+            {/* Consolidated Candidate Details / Profile */}
             <Route
               path="/candidate-details"
               element={
@@ -146,7 +127,7 @@ export const App: React.FC = () => {
             />
             <Route path="/profile" element={<Navigate to="/candidate-details" replace />} />
 
-            {/* German Learning Path (PRD Section 8.1 & Differentiator #10) */}
+            {/* German Learning Path */}
             <Route
               path="/journey/german-learning-path"
               element={
@@ -156,32 +137,11 @@ export const App: React.FC = () => {
               }
             />
 
-            {/* Educaro Premium Checkout (PRD Section 8.3) */}
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                  <CheckoutPage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Consultant Support (PRD Section 8.3) */}
-            <Route
-              path="/consultant"
-              element={
-                <ProtectedRoute>
-                  <ConsultantPage />
-                </ProtectedRoute>
-              }
-            />
-
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </JourneyProvider>
       </AuthProvider>
-      </div>
     </BrowserRouter>
   );
 };

@@ -12,6 +12,14 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
   const { agentEvents, refreshJourney } = useJourney();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const interval = setInterval(() => {
+      refreshJourney();
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [isOpen, refreshJourney]);
+
   if (!isOpen) return null;
 
   const toggleExpand = (id: string) => {

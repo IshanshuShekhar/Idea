@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../../components/Navbar';
 import { StepHeader } from '../../components/StepHeader';
-import { PaymentModal } from '../../components/PaymentModal';
 import { AgentTracePanel } from '../../components/AgentTracePanel';
 import { useAuth } from '../../context/AuthContext';
 import { useJourney } from '../../context/JourneyContext';
@@ -13,7 +12,6 @@ export const NextStepsPage: React.FC = () => {
   const { entitlements, refreshJourney } = useJourney();
   const navigate = useNavigate();
 
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isConsultantBooked, setIsConsultantBooked] = useState(false);
   const [isTraceOpen, setIsTraceOpen] = useState(false);
 
@@ -78,9 +76,9 @@ export const NextStepsPage: React.FC = () => {
       <StepHeader
         currentStepIndex={9}
         totalSteps={9}
-        stepTitle="Premium & Advisor Handoff"
-        stepSubtitle="Unlock priority fast-tracking or book a 1-on-1 strategy call with an expert."
-        backRoute="/journey/payment"
+        stepTitle="Recommended Next Steps"
+        stepSubtitle="Review recommendations, access fast-tracking, or consult with an advisor."
+        backRoute="/journey/cv"
         nextRoute="/"
         continueLabel="Return Home"
       />
@@ -342,14 +340,6 @@ export const NextStepsPage: React.FC = () => {
         </div>
 
       </main>
-
-      <PaymentModal
-        isOpen={isPaymentOpen}
-        onClose={() => {
-          setIsPaymentOpen(false);
-          refreshJourney();
-        }}
-      />
 
       <AgentTracePanel isOpen={isTraceOpen} onClose={() => setIsTraceOpen(false)} />
     </div>

@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import * as path from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -13,6 +16,12 @@ async function bootstrap() {
     origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
     credentials: true,
   });
+
+  const uploadsPath = path.resolve(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsPath));
 
   const port = Number(process.env.PORT) || 3001;
   await app.listen(port);

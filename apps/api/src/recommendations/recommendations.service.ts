@@ -231,43 +231,36 @@ export class RecommendationsService {
     const candidateRecs: CandidateRec[] = [];
 
     // 3a. Convert Qualification Engine's outstanding/missing requirements
-    for (const req of qualificationEval.missingRequirements) {
+    for (const req of qualificationEval.missing) {
       let type: RecommendationType = 'QUALIFICATION';
-      if (req.category === 'LANGUAGE') type = 'LANGUAGE';
-      else if (req.category === 'DOCUMENT') type = 'DOCUMENT';
-      else if (req.category === 'DEGREE') type = 'QUALIFICATION';
+      if (req.ruleId.includes('german') || req.ruleId.includes('lang')) type = 'LANGUAGE';
+      else if (req.ruleId.includes('doc')) type = 'DOCUMENT';
 
       let actionRoute = '/journey/documents';
       let actionLabel = 'Review Documents';
 
-      if (req.id.includes('german') || req.category === 'LANGUAGE') {
+      if (req.ruleId.includes('german')) {
         actionRoute = '/journey/german-learning-path';
         actionLabel = 'Explore German Modules';
-      } else if (req.id.includes('inconsistency') || req.id.includes('conflict')) {
+      } else if (req.ruleId.includes('inconsistency') || req.ruleId.includes('conflict')) {
         actionRoute = '/journey/documents';
         actionLabel = 'Resolve Inconsistency';
-      } else if (req.id.includes('degree') || req.id.includes('h_plus')) {
+      } else if (req.ruleId.includes('degree')) {
         actionRoute = '/journey/documents';
         actionLabel = 'Upload Official Certificate';
       }
 
       candidateRecs.push({
-        ruleId: req.id,
+        ruleId: req.ruleId,
         type,
-        priority: req.severity === 'BLOCKING' ? 'REQUIRED' : 'IMPORTANT',
-        title: req.title,
-        description: req.description,
+        priority: req.ruleId.includes('degree') ? 'REQUIRED' : 'IMPORTANT',
+        title: req.name || req.description,
+        description: req.description || req.remediation || 'Requirement not yet satisfied',
         actionRoute,
         actionLabel,
-        whyExplanation: await this.synthesizeWhyExplanation({
-          title: req.title,
-          category: req.category,
-          pathway,
-          degree,
-          university,
-          germanLevel,
-          severity: req.severity,
-        }),
+        whyExplanation: req.assumption
+          ? `Assumption to confirm with consultant: ${req.assumption}`
+          : req.description,
       });
     }
 
@@ -451,7 +444,7 @@ export class RecommendationsService {
       input: {
         pathway,
         degree,
-        missingRequirementsCount: qualificationEval.missingRequirements.length,
+        missingRequirementsCount: qualificationEval.missing.length,
         hasConflicts: hasUnresolvedConflicts,
       },
       output: {
@@ -586,7 +579,7 @@ export class RecommendationsService {
     let qualScore = evalResult.scorePct;
     if (hasUnresolvedConflicts) qualScore = Math.max(30, qualScore - 20);
 
-    let qualReason = `Satisfies ${evalResult.passedCriteria.length} of ${evalResult.passedCriteria.length + evalResult.missingRequirements.length} German regulatory admission criteria.`;
+    let qualReason = `Satisfies ${evalResult.passed.length} of ${evalResult.passed.length + evalResult.missing.length} German regulatory admission criteria.`;
     if (hasUnresolvedConflicts) {
       qualReason += ' ⚠️ Active graduation date discrepancy blocks expedited processing.';
     }

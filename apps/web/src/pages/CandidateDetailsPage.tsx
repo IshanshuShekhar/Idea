@@ -3,10 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { StepHeader } from '../components/StepHeader';
 import { ProvenanceBadge } from '../components/ProvenanceBadge';
-import { PaymentModal } from '../components/PaymentModal';
 import { AdvisorBookingModal } from '../components/AdvisorBookingModal';
 import { AgentTracePanel } from '../components/AgentTracePanel';
-import { CallNowButton } from '../components/CallNowButton';
 import { useAuth } from '../context/AuthContext';
 import { useJourney } from '../context/JourneyContext';
 import { Provenance, ConsultantLeadScore } from '@educaro/shared';
@@ -650,7 +648,13 @@ export const CandidateDetailsPage: React.FC = () => {
                         <span>Extended German Modules</span>
                         <ArrowRight className="w-3 h-3" />
                       </button>
-                      <CallNowButton className="px-4 py-2" />
+                      <button
+                        onClick={() => setIsAdvisorBookingOpen(true)}
+                        className="px-4 py-2 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-semibold transition-colors flex items-center gap-1.5"
+                      >
+                        <span>Advisor Call</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
 
@@ -912,18 +916,6 @@ export const CandidateDetailsPage: React.FC = () => {
         )}
 
       </main>
-
-      <PaymentModal
-        isOpen={isPaymentOpen}
-        onClose={() => {
-          setIsPaymentOpen(false);
-          fetchDetails();
-          refreshJourney();
-        }}
-        featureKey="CONSULTANT_REVIEW"
-        featureTitle="Consultant Review & Priority APS Consultation"
-        amount={100}
-      />
 
       <AdvisorBookingModal
         isOpen={isAdvisorBookingOpen}

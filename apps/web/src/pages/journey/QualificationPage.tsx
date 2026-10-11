@@ -4,9 +4,6 @@ import { Navbar } from '../../components/Navbar';
 import { StepHeader } from '../../components/StepHeader';
 import { WhatIfSimulator } from '../../components/WhatIfSimulator';
 import { GermanReadinessTrack } from '../../components/GermanReadinessTrack';
-import { LocalityGuide } from '../../components/LocalityGuide';
-import { ScholarshipsFinder } from '../../components/ScholarshipsFinder';
-import { PaymentModal } from '../../components/PaymentModal';
 import { AdvisorBookingModal } from '../../components/AdvisorBookingModal';
 import { AgentTracePanel } from '../../components/AgentTracePanel';
 import { useAuth } from '../../context/AuthContext';
@@ -37,33 +34,11 @@ export const QualificationPage: React.FC = () => {
 
   const [evaluation, setEvaluation] = useState<QualificationEvaluation | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [isAdvisorBookingOpen, setIsAdvisorBookingOpen] = useState(false);
   const [isTraceOpen, setIsTraceOpen] = useState(false);
 
-  const isPriorityUnlocked =
-    entitlements.includes('EDUCARO_PREMIUM') ||
-    entitlements.includes('PRIORITY_APS_CONSULTANT_REVIEW') ||
-    entitlements.includes('CONSULTANT_REVIEW');
-
   const handleAdvisorClick = async () => {
-    try {
-      const res = await fetch('/api/payment/entitlement/CONSULTANT_REVIEW', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.active) {
-        setIsAdvisorBookingOpen(true);
-        return;
-      }
-    } catch {
-      // fallback to state check
-    }
-    if (isPriorityUnlocked) {
-      setIsAdvisorBookingOpen(true);
-    } else {
-      navigate('/checkout');
-    }
+    setIsAdvisorBookingOpen(true);
   };
 
   const loadQualification = async () => {
@@ -210,51 +185,30 @@ export const QualificationPage: React.FC = () => {
               <GermanReadinessTrack track={evaluation.germanReadiness} />
             )}
 
-            {/* Locality Guide */}
-            <LocalityGuide />
-
-            {/* Scholarships Finder */}
-            <ScholarshipsFinder />
-
-            {/* Premium Consultant & APS Service Card (Section 8.3 & Build item 12) */}
+            {/* Consultant & Advisory Card */}
             <div className="premium-card bg-educaro-secondary p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 animate-fade-in-up-2">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-educaro-accent text-black">
-                    Premium Add-On
+                    Expert Support
                   </span>
-                  {isPriorityUnlocked && (
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                      ✓ Entitlement Active
-                    </span>
-                  )}
                 </div>
                 <h3 className="text-lg font-bold text-educaro-primary">
-                  {evaluation.recommendedService.title}
+                  {evaluation.recommendedService?.title || 'Educaro Consultant Consultation'}
                 </h3>
                 <p className="text-xs sm:text-sm text-educaro-muted max-w-2xl leading-relaxed">
-                  {evaluation.recommendedService.description}
+                  {evaluation.recommendedService?.description || 'Book a 1-on-1 strategy call with an experienced Educaro advisor in Germany.'}
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
-                {isPriorityUnlocked ? (
-                  <button
-                    onClick={() => setIsAdvisorBookingOpen(true)}
-                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
-                  >
-                    <UserCheck className="w-4 h-4" />
-                    <span>Book Advisor Call (Active)</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleAdvisorClick}
-                    className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs sm:text-sm font-semibold shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Book Advisor Call • Unlock Educaro Premium via UPI/QR (₹{evaluation.recommendedService.priceInr || 100})</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => setIsAdvisorBookingOpen(true)}
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs sm:text-sm font-semibold shadow-xs transition-colors"
+                >
+                  <UserCheck className="w-4 h-4" />
+                  <span>Book Advisor Call</span>
+                </button>
               </div>
             </div>
 
@@ -278,18 +232,6 @@ export const QualificationPage: React.FC = () => {
         )}
 
       </main>
-
-      {/* Payment Checkout Modal */}
-      <PaymentModal
-        isOpen={isPaymentOpen}
-        onClose={() => {
-          setIsPaymentOpen(false);
-          refreshJourney();
-        }}
-        featureKey="CONSULTANT_REVIEW"
-        featureTitle="Consultant Review & Priority APS Consultation"
-        amount={100}
-      />
 
       {/* Direct Advisor Booking Modal */}
       <AdvisorBookingModal

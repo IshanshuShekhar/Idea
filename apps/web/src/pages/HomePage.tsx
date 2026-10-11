@@ -4,7 +4,6 @@ import { Navbar } from '../components/Navbar';
 import { FloatingJourneyCard } from '../components/FloatingJourneyCard';
 import { FAQSection } from '../components/FAQSection';
 import { AgentTracePanel } from '../components/AgentTracePanel';
-import { ThreeDBackground } from '../components/ThreeDBackground';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import {
@@ -32,10 +31,8 @@ export const HomePage: React.FC = () => {
 
       {/* Main Hero Section (PRD Section 9.1) */}
       <section className="relative overflow-hidden min-h-[640px] lg:min-h-[720px] flex items-center justify-center border-b border-educaro-border">
-        {/* 3D Background */}
-        <div className="absolute inset-0 z-0 bg-[#040112]">
-          <ThreeDBackground className="w-full h-full" />
-        </div>
+        {/* Background glow */}
+        <div className="absolute inset-0 z-0 bg-radial-gradient from-blue-900/20 via-black to-[#040112] opacity-80" />
 
         {/* Hero Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
