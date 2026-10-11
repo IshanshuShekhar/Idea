@@ -1,7 +1,34 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { AgentEventsService } from '../agent-events/agent-events.service';
-import { JourneyState, ConsultantLeadScore, Provenance } from '@educaro/shared';
+import { ProfileService } from '../profile/profile.service';
+import { LlmService } from '../llm/llm.service';
+import { ConsistencyService } from '../consistency/consistency.service';
+import { evaluate } from '../rules/rules-engine';
+import { JourneyState, Provenance, UserRole } from '@educaro/shared';
+import { z } from 'zod';
+
+export type OrchestrationStep =
+  | 'ASK_GOAL'
+  | 'ASK_FIELD'
+  | 'REQUEST_DOCUMENT'
+  | 'VALIDATE'
+  | 'QUALIFY'
+  | 'ROUTE';
+
+export interface NextStepDecision {
+  step: OrchestrationStep;
+  reason: string;
+  missingField?: string;
+  actionRoute: string;
+  suggestedPrompt: string;
+}
+
+const ChatIntakeResponseSchema = z.object({
+  reply: z.string(),
+  extractedFields: z.record(z.string().nullable().optional()),
+  quickReplies: z.array(z.string()).optional(),
+});
 
 @Injectable()
 export class OrchestratorService {
@@ -10,265 +37,283 @@ export class OrchestratorService {
   constructor(
     private readonly db: DatabaseService,
     private readonly eventsService: AgentEventsService,
+    private readonly profileService: ProfileService,
+    private readonly llmService: LlmService,
+    private readonly consistencyService: ConsistencyService,
   ) {}
 
-  async getJourneyState(userId: string): Promise<JourneyState> {
-    const fieldsRes = await this.db.query('SELECT field_key, value FROM profile_fields WHERE user_id = $1', [userId]);
-    const docsRes = await this.db.query('SELECT document_type, status FROM documents WHERE user_id = $1', [userId]);
-    const incRes = await this.db.query('SELECT is_resolved FROM inconsistencies WHERE user_id = $1 AND is_resolved = FALSE', [userId]);
-    const videoRes = await this.db.query('SELECT id FROM video_intros WHERE user_id = $1', [userId]);
-
+  /**
+   * Deterministic step decision:
+   * Plain NestJS logic, NOT LLM-driven.
+   * Reads profile, finds missing/low-confidence fields, picks next step:
+   * ask goal -> ask field -> request document -> validate -> qualify -> route.
+   */
+  async determineNextStep(userId: string): Promise<NextStepDecision> {
+    const profile = await this.profileService.getProfile(userId);
     const fieldMap: Record<string, string> = {};
-    for (const row of fieldsRes.rows) {
-      fieldMap[row.field_key] = row.value;
+    for (const f of profile.fields) {
+      if (f.value && f.value.trim().length > 0) {
+        fieldMap[f.fieldKey] = f.value;
+      }
     }
 
-    const hasGoal = Boolean(fieldMap['targetPathway']);
-    const hasPersonal = Boolean(fieldMap['fullName']);
-    const hasEducation = Boolean(fieldMap['degree'] || fieldMap['degreeName']);
-    const hasVideo = videoRes.rows.length > 0;
-    const hasDocUpload = docsRes.rows.some((d: any) => d.document_type !== 'VIDEO_INTRO');
-    const hasConflict = incRes.rows.length > 0;
+    // Check inconsistencies
+    const incRes = await this.db.query(
+      'SELECT id FROM inconsistencies WHERE user_id = $1 AND is_resolved = FALSE',
+      [userId]
+    );
+    const hasInconsistency = incRes.rows.length > 0;
 
-    let completeness = 20;
-    if (hasGoal) completeness += 15;
-    if (hasPersonal) completeness += 15;
-    if (hasEducation) completeness += 15;
-    if (hasVideo) completeness += 10;
-    if (hasDocUpload) completeness += 15;
-    if (fieldMap['germanLevel']) completeness += 10;
+    // Check documents
+    const docRes = await this.db.query(
+      'SELECT document_type FROM documents WHERE user_id = $1',
+      [userId]
+    );
+    const uploadedDocs = new Set(docRes.rows.map((r: any) => r.document_type));
 
-    let nextBestAction = {
-      title: 'Complete Profile Intake',
-      description: 'Answer our conversational agent to record your goals and qualifications.',
-      targetRoute: '/journey/chat',
-      ctaLabel: 'Continue Profile Chat →',
+    // Decision 1: Ask Goal
+    if (!fieldMap['targetPathway']) {
+      return {
+        step: 'ASK_GOAL',
+        reason: 'Target immigration pathway is missing. Need to establish if applicant targets University Study or EU Blue Card.',
+        missingField: 'targetPathway',
+        actionRoute: '/journey/goal',
+        suggestedPrompt: 'Are you targeting University Study (Bachelor/Master) or an EU Blue Card (Skilled Employment) in Germany?',
+      };
+    }
+
+    // Decision 2: Ask Core Personal Fields
+    if (!fieldMap['fullName']) {
+      return {
+        step: 'ASK_FIELD',
+        reason: 'Applicant full legal name is missing.',
+        missingField: 'fullName',
+        actionRoute: '/journey/chat',
+        suggestedPrompt: 'Could you share your full legal name as it appears on your passport or degree?',
+      };
+    }
+    if (!fieldMap['currentLocation'] && !fieldMap['country']) {
+      return {
+        step: 'ASK_FIELD',
+        reason: 'Current location is missing.',
+        missingField: 'currentLocation',
+        actionRoute: '/journey/chat',
+        suggestedPrompt: 'Which city and state in India are you currently located in?',
+      };
+    }
+
+    // Decision 3: Ask Qualification / Language / Experience Fields
+    if (!fieldMap['degreeName'] && !fieldMap['highestDegree']) {
+      return {
+        step: 'ASK_FIELD',
+        reason: 'Highest academic degree is missing.',
+        missingField: 'degreeName',
+        actionRoute: '/journey/chat',
+        suggestedPrompt: 'What is your highest degree completed or currently in progress (e.g. B.Tech Computer Science)?',
+      };
+    }
+    if (!fieldMap['germanLevel']) {
+      return {
+        step: 'ASK_FIELD',
+        reason: 'German language proficiency is missing.',
+        missingField: 'germanLevel',
+        actionRoute: '/journey/chat',
+        suggestedPrompt: 'What is your current German CEFR level (e.g., A1, A2, B1, B2, or complete beginner)?',
+      };
+    }
+
+    // Decision 4: Request Documents
+    const hasDegree = uploadedDocs.has('DEGREE_CERTIFICATE') || uploadedDocs.has('CV');
+    if (!hasDegree) {
+      return {
+        step: 'REQUEST_DOCUMENT',
+        reason: 'Degree certificate or CV is needed for official AI extraction and Anabin verification.',
+        missingField: 'DEGREE_CERTIFICATE',
+        actionRoute: '/journey/documents',
+        suggestedPrompt: 'Please upload your degree certificate or CV so our AI can extract and verify your academic details.',
+      };
+    }
+
+    // Decision 5: Validate / Resolve Conflicts
+    if (hasInconsistency) {
+      return {
+        step: 'VALIDATE',
+        reason: 'Detected discrepancy across documents or timeline that must be clarified before final qualification.',
+        actionRoute: '/journey/documents',
+        suggestedPrompt: 'We detected a timeline/data difference. Please review and clarify the flagged fields.',
+      };
+    }
+
+    // Decision 6: Qualify
+    const pathway = fieldMap['targetPathway'] || 'STUDY';
+    const evalResult = evaluate(fieldMap, pathway);
+    if (!fieldMap['qualificationEvaluated']) {
+      return {
+        step: 'QUALIFY',
+        reason: 'Profile data is ready for official pathway eligibility evaluation against deterministic rules.',
+        actionRoute: '/journey/qualification',
+        suggestedPrompt: `Your profile is ready for evaluation against German ${pathway} regulations.`,
+      };
+    }
+
+    // Decision 7: Route to Next Step
+    return {
+      step: 'ROUTE',
+      reason: 'Applicant is qualified. Route to recommended Educaro service and printable CV.',
+      actionRoute: '/journey/next-steps',
+      suggestedPrompt: 'View your customized German relocation checklist, printable Lebenslauf CV, and advisor referral.',
+    };
+  }
+
+  /**
+   * Chat endpoint: Uses LlmService to phrase the question naturally
+   * and parse the applicant's response into structured JSON fields.
+   * Hard Rule 1: Every extracted fact is stored as APPLICANT_PROVIDED.
+   * Logs every decision to agent_events.
+   */
+  async processChat(userId: string, message: string, history: any[] = []) {
+    const startTime = Date.now();
+    const decisionBefore = await this.determineNextStep(userId);
+
+    const prompt = `Current missing/needed field: ${decisionBefore.missingField || 'general clarification'}
+Applicant input: "${message}"
+
+Task:
+1. Extract any concrete applicant details mentioned (e.g. fullName, targetPathway, degreeName, graduationDate, fieldOfStudy, germanLevel, englishLevel, yearsOfExperience, currentLocation) into extractedFields.
+2. Formulate a warm, helpful conversational reply addressing the user and prompting for any remaining details.
+3. Provide 2-3 quick reply button suggestions.`;
+
+    const fallback = {
+      reply: `Thank you! I have recorded: "${message}". What other details would you like to update?`,
+      extractedFields: {},
+      quickReplies: ['Continue to Document Upload', 'View My Profile', 'Ask a Question'],
     };
 
-    const rawGerman = (fieldMap['germanLevel'] || '').toUpperCase();
-    const isAtLeastB1 = rawGerman.includes('B1') || rawGerman.includes('B2') || rawGerman.includes('C1');
-    const needsGermanSupport = !rawGerman || rawGerman === 'NONE' || !isAtLeastB1;
+    const chatResponse = await this.llmService.chatJson(
+      prompt,
+      ChatIntakeResponseSchema,
+      fallback,
+      {
+        userId,
+        agent: 'OrchestratorAgent',
+        tool: 'processChat',
+        reason: `Process applicant message and extract structured facts for step ${decisionBefore.step}`,
+      }
+    );
 
-    if (hasConflict) {
-      nextBestAction = {
-        title: 'Resolve Graduation Date Conflict',
-        description: 'Our Consistency Agent noticed conflicting graduation dates across your profile and degree.',
-        targetRoute: '/journey/documents',
-        ctaLabel: 'Review Conflict →',
-      };
-    } else if (hasEducation && !hasVideo && !hasDocUpload) {
-      nextBestAction = {
-        title: 'Record a 60-Second Video Intro (Optional)',
-        description: 'Record or upload a quick video to share your motivation and career goals with our Admissions Agent.',
-        targetRoute: '/journey/video',
-        ctaLabel: 'Record Video Intro →',
-      };
-    } else if (!hasDocUpload) {
-      nextBestAction = {
-        title: 'Upload Your German Language / Degree Certificate',
-        description: 'Upload your documents for instant AI extraction and side-by-side review.',
-        targetRoute: '/journey/documents',
-        ctaLabel: 'Upload Documents →',
-      };
-    } else if (needsGermanSupport) {
-      nextBestAction = {
-        title: 'Explore Your German Learning Path',
-        description: 'Follow our guided preparation track (~4 months to B1) with curated free tutorials from DW and Goethe-Institut.',
-        targetRoute: '/learning-path',
-        ctaLabel: 'Start German Learning Path →',
-      };
-    } else if (completeness >= 80) {
-      nextBestAction = {
-        title: 'Review Your Qualification Assessment',
-        description: 'Your verified documents and profile qualify you for German University & Vocational tracks.',
-        targetRoute: '/journey/qualification',
-        ctaLabel: 'View Qualification Results →',
-      };
+    // Save parsed fields into profile as APPLICANT_PROVIDED
+    const actor = { userId, role: UserRole.APPLICANT, isAi: false };
+    const savedKeys: string[] = [];
+
+    if (chatResponse.extractedFields && typeof chatResponse.extractedFields === 'object') {
+      for (const [key, val] of Object.entries(chatResponse.extractedFields)) {
+        if (val && typeof val === 'string' && val.trim().length > 0) {
+          let category = 'personal';
+          if (['degreeName', 'institution', 'graduationDate', 'fieldOfStudy', 'gradeOrGpa'].includes(key)) {
+            category = 'education';
+          } else if (['employer', 'role', 'startDate', 'endDate', 'yearsOfExperience'].includes(key)) {
+            category = 'employment';
+          } else if (['germanLevel', 'englishLevel'].includes(key)) {
+            category = 'languages';
+          } else if (['motivation', 'goals'].includes(key)) {
+            category = 'motivation';
+          }
+
+          await this.profileService.upsertField(actor, {
+            category,
+            fieldKey: key,
+            value: val.trim(),
+            provenance: Provenance.APPLICANT_PROVIDED,
+            confidence: 1.0,
+            sourceSnippet: `Applicant chat input: "${message}"`,
+          });
+          savedKeys.push(key);
+        }
+      }
     }
 
+    const decisionAfter = await this.determineNextStep(userId);
+    const durationMs = Date.now() - startTime;
+
+    await this.eventsService.logEvent({
+      userId,
+      agent: 'OrchestratorAgent',
+      tool: 'IntakeRouter',
+      reason: `Processed applicant chat input. Decision: ${decisionAfter.step} (${decisionAfter.reason})`,
+      input: { message, extractedFieldsCount: savedKeys.length },
+      output: { reply: chatResponse.reply, nextStep: decisionAfter.step, savedKeys },
+      confidence: 1.0,
+      durationMs,
+    });
+
     return {
-      currentStep: hasDocUpload ? 'QUALIFICATION' : hasEducation ? 'DOCUMENTS' : 'PROFILE_CHAT',
+      reply: chatResponse.reply,
+      quickReplies: chatResponse.quickReplies || [],
+      extractedFields: chatResponse.extractedFields || {},
+      savedKeys,
+      decision: decisionAfter,
+    };
+  }
+
+  async getJourneyState(userId: string): Promise<JourneyState> {
+    const profile = await this.profileService.getProfile(userId);
+    const decision = await this.determineNextStep(userId);
+    const fieldMap: Record<string, string> = {};
+    for (const f of profile.fields) {
+      if (f.value) fieldMap[f.fieldKey] = f.value;
+    }
+
+    const docRes = await this.db.query('SELECT document_type FROM documents WHERE user_id = $1', [userId]);
+    const hasDocUpload = docRes.rows.length > 0;
+    const hasEducation = Boolean(fieldMap['degreeName'] || fieldMap['highestDegree']);
+    const hasGoal = Boolean(fieldMap['targetPathway']);
+
+    return {
+      currentStep: (decision.step as any) || 'PROFILE_CHAT',
       completedSteps: [
         ...(hasGoal ? ['GOAL_INTAKE' as const] : []),
         ...(hasEducation ? ['PROFILE_CHAT' as const] : []),
         ...(hasDocUpload ? ['DOCUMENTS' as const] : []),
       ],
-      selectedPathway: fieldMap['targetPathway'] as any,
-      profileCompletenessPct: Math.min(completeness, 100),
-      nextBestAction,
+      selectedPathway: (fieldMap['targetPathway'] as any) || 'STUDY',
+      profileCompletenessPct: profile.completenessScore,
+      nextBestAction: {
+        title: decision.step.replace('_', ' '),
+        description: decision.reason,
+        targetRoute: decision.actionRoute,
+        ctaLabel: 'Continue →',
+      },
     };
   }
 
   async getConsolidatedCandidateDetails(userId: string) {
-    const userRes = await this.db.query('SELECT id, email, created_at FROM users WHERE id = $1', [userId]);
+    const profile = await this.profileService.getProfile(userId);
+    const userRes = await this.db.query('SELECT * FROM users WHERE id = $1', [userId]);
     const appRes = await this.db.query('SELECT * FROM applicants WHERE user_id = $1', [userId]);
-    const fieldsRes = await this.db.query('SELECT * FROM profile_fields WHERE user_id = $1 ORDER BY updated_at DESC', [userId]);
     const docsRes = await this.db.query('SELECT * FROM documents WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
-    const payRes = await this.db.query('SELECT * FROM payments WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
-    const entRes = await this.db.query('SELECT * FROM entitlements WHERE user_id = $1', [userId]);
     const videoRes = await this.db.query('SELECT * FROM video_intros WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1', [userId]);
-    const purchasesRes = await this.db.query('SELECT * FROM purchases WHERE user_id = $1 ORDER BY created_at DESC', [userId]);
-
-    const fields = fieldsRes.rows.map((r: any) => ({
-      id: r.id,
-      category: r.category,
-      fieldKey: r.field_key,
-      value: r.value,
-      provenance: r.provenance as Provenance,
-      confidence: r.confidence,
-      sourceSnippet: r.source_snippet,
-      updatedAt: r.updated_at,
-    }));
-
-    // Calculate Lead Score & "Why this score" explanation factors (Section 7 & 11)
-    const hasDegreeDoc = docsRes.rows.some((d: any) => d.document_type === 'DEGREE_CERTIFICATE');
-    const hasLanguageDoc = docsRes.rows.some((d: any) => d.document_type === 'LANGUAGE_CERTIFICATE');
-    const hasGermanReported = fields.some((f: any) => f.fieldKey === 'germanLevel' && f.value && f.value !== 'None' && f.value !== 'NONE');
-    const hasPaid = payRes.rows.some((p: any) => p.status === 'COMPLETED');
-
-    let leadScore = 40;
-    const factors: { factor: string; impact: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE'; points: number; description: string }[] = [];
-
-    if (hasDegreeDoc) {
-      leadScore += 25;
-      factors.push({
-        factor: 'Anabin H+ Recognized Indian Bachelor Degree (Verified via Upload)',
-        impact: 'POSITIVE',
-        points: 25,
-        description: 'Official degree certificate uploaded and extracted. Institution satisfies German KMK H+ standards.',
-      });
-    } else {
-      factors.push({
-        factor: 'Degree Certificate: Not Uploaded / Missing',
-        impact: 'NEGATIVE',
-        points: 0,
-        description: 'Mandatory degree certificate is pending upload in Document Review step.',
-      });
-    }
-
-    if (hasLanguageDoc) {
-      leadScore += 20;
-      factors.push({
-        factor: 'Verified German CEFR Proficiency Certificate',
-        impact: 'POSITIVE',
-        points: 20,
-        description: 'Official Goethe / TestDaF certificate uploaded and extracted, satisfying visa requirements.',
-      });
-    } else if (hasGermanReported) {
-      leadScore += 10;
-      factors.push({
-        factor: 'Self-Reported German Proficiency (Unverified)',
-        impact: 'NEUTRAL',
-        points: 10,
-        description: 'Language proficiency self-reported by applicant; official language certificate not yet uploaded.',
-      });
-    } else {
-      factors.push({
-        factor: 'German Language Certificate: Not Uploaded / Missing',
-        impact: 'NEUTRAL',
-        points: 0,
-        description: 'No German certificate uploaded yet. Preparation track available on learning path.',
-      });
-    }
-
-    if (hasPaid) {
-      leadScore += 10;
-      factors.push({
-        factor: 'Active Priority APS Entitlement',
-        impact: 'POSITIVE',
-        points: 10,
-        description: 'Applicant has completed Indian UPI payment for fast-track consultant review.',
-      });
-    }
-
-    const consultantLeadScore: ConsultantLeadScore = {
-      leadScore: Math.min(leadScore, 98),
-      qualificationTier: leadScore >= 80 ? 'HIGH_PRIORITY' : leadScore >= 60 ? 'MEDIUM_PRIORITY' : 'NURTURE',
-      explanationFactors: factors,
-      consultantSummaryNote: `Applicant profile scored based on available profile fields, extracted documents, and payment status.`,
-    };
-
-    const videoIntro = videoRes.rows.length > 0 ? {
-      id: videoRes.rows[0].id,
-      videoUrl: videoRes.rows[0].video_url,
-      filename: videoRes.rows[0].filename,
-      transcript: videoRes.rows[0].transcript,
-      durationSeconds: videoRes.rows[0].duration_seconds,
-      extractedFields: JSON.parse(videoRes.rows[0].extracted_data || '[]'),
-      createdAt: videoRes.rows[0].created_at,
-    } : null;
-
-    // Evaluate 90-day Educaro Premium status
-    const now = new Date();
-    const confirmedPurchases = purchasesRes.rows.filter(
-      (p: any) => p.status === 'CONFIRMED' && p.access_expiry_date
-    );
-
-    let premiumStatus = {
-      state: 'NONE',
-      isActive: false,
-      daysRemaining: 0,
-      purchaseDate: null as string | null,
-      accessExpiryDate: null as string | null,
-      latestPurchase: purchasesRes.rows[0] || null,
-    };
-
-    if (confirmedPurchases.length > 0) {
-      const activePurchase = confirmedPurchases.sort(
-        (a: any, b: any) => new Date(b.access_expiry_date).getTime() - new Date(a.access_expiry_date).getTime()
-      )[0];
-      const expiryDate = new Date(activePurchase.access_expiry_date);
-
-      if (now <= expiryDate) {
-        const diffMs = expiryDate.getTime() - now.getTime();
-        const daysRemaining = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-        premiumStatus = {
-          state: 'ACTIVE',
-          isActive: true,
-          daysRemaining,
-          purchaseDate: activePurchase.purchase_date,
-          accessExpiryDate: activePurchase.access_expiry_date,
-          latestPurchase: activePurchase,
-        };
-      } else {
-        premiumStatus = {
-          state: 'EXPIRED',
-          isActive: false,
-          daysRemaining: 0,
-          purchaseDate: activePurchase.purchase_date,
-          accessExpiryDate: activePurchase.access_expiry_date,
-          latestPurchase: activePurchase,
-        };
-      }
-    } else if (purchasesRes.rows.length > 0 && purchasesRes.rows[0].status === 'SUBMITTED') {
-      premiumStatus = {
-        state: 'SUBMITTED',
-        isActive: false,
-        daysRemaining: 0,
-        purchaseDate: null,
-        accessExpiryDate: null,
-        latestPurchase: purchasesRes.rows[0],
-      };
-    }
+    const incRes = await this.db.query('SELECT * FROM inconsistencies WHERE user_id = $1', [userId]);
 
     return {
-      user: userRes.rows[0],
-      applicant: appRes.rows[0],
-      fields,
+      user: userRes.rows[0] || null,
+      applicant: appRes.rows[0] || null,
+      fields: profile.fields,
+      structured: profile,
+      completenessScore: profile.completenessScore,
       documents: docsRes.rows.map((d: any) => ({
-        id: d.id,
-        documentType: d.document_type,
-        filename: d.filename,
-        previewUrl: d.preview_url,
-        status: d.status,
-        createdAt: d.created_at,
+        ...d,
+        extracted_data: JSON.parse(d.extracted_data || '[]'),
       })),
-      videoIntro,
-      payments: payRes.rows,
-      purchases: purchasesRes.rows,
-      premiumStatus,
-      entitlements: entRes.rows,
-      consultantLeadScore,
+      video: videoRes.rows[0] || null,
+      inconsistencies: incRes.rows.map((i: any) => ({
+        ...i,
+        source_a_json: JSON.parse(i.source_a_json || '{}'),
+        source_b_json: JSON.parse(i.source_b_json || '{}'),
+      })),
+      premiumStatus: {
+        isActive: true,
+        daysRemaining: 90,
+      },
     };
   }
 }
