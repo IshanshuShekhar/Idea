@@ -5,18 +5,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
-import { EmailModule } from '../email/email.module';
+
+import { SeedModule } from '../seed/seed.module';
 
 @Module({
   imports: [
-    EmailModule,
+    SeedModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET') || 'educaro-super-secret-key-impactx26',
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '7d' },
       }),
     }),
   ],
