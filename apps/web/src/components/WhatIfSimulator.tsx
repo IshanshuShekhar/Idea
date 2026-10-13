@@ -61,31 +61,31 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
   const cefrLevels: CEFRLevel[] = [CEFRLevel.A1, CEFRLevel.A2, CEFRLevel.B1, CEFRLevel.B2];
 
   return (
-    <div className="rounded-3xl border-2 border-dashed border-educaro-accent/40 bg-educaro-main p-6 sm:p-8 shadow-xs space-y-6 transition-all">
+    <div className="rounded-3xl border-2 border-dashed border-brand/30 bg-white p-6 sm:p-8 shadow-xs space-y-6 transition-all">
       
       {/* Header with clear Hypothetical / Simulated Framing */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-educaro-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-educaro-accent text-black flex items-center justify-center shrink-0">
-            <Sparkles className="w-4 h-4 text-amber-200" />
+          <div className="w-8 h-8 rounded-xl btn-brand text-white flex items-center justify-center shrink-0">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-educaro-primary">
+              <h3 className="text-base font-bold text-gray-900">
                 Try a Scenario: What-If Simulator
               </h3>
-              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-educaro-accent/20">
+              <span className="badge-warning text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5">
                 Simulated Scenario
               </span>
             </div>
-            <p className="text-xs text-educaro-muted mt-0.5">
+            <p className="text-xs text-gray-600 mt-0.5">
               Explore how reaching a higher German CEFR level instantly upgrades your admission & visa outcome
             </p>
           </div>
         </div>
 
-        <div className="text-[11px] font-medium text-educaro-muted flex items-center gap-1.5 self-start sm:self-auto bg-educaro-secondary px-3 py-1.5 rounded-full border border-educaro-border">
-          <Info className="w-3.5 h-3.5 text-educaro-accent" />
+        <div className="text-[11px] font-medium text-gray-700 flex items-center gap-1.5 self-start sm:self-auto bg-gray-50 px-3 py-1.5 rounded-full border border-border">
+          <Info className="w-3.5 h-3.5 text-brand" />
           <span>Your actual profile: <strong>{actualEvaluation.actualGermanLevel || 'A1 / Unassessed'}</strong></span>
         </div>
       </div>
@@ -93,10 +93,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
       {/* Control: German Level Selector / Slider */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-bold text-educaro-primary">
+          <span className="font-bold text-gray-900">
             Select a hypothetical German level to test:
           </span>
-          <span className="text-educaro-muted text-[11px]">
+          <span className="text-gray-600 text-[11px]">
             Instant deterministic rules calculation (0ms)
           </span>
         </div>
@@ -114,19 +114,19 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
                 onClick={() => setSimulatedLevel(lvl)}
                 className={`py-2.5 px-3 rounded-2xl text-xs font-bold transition-all flex flex-col items-center justify-center gap-1 border ${
                   isSelected
-                    ? 'bg-educaro-accent text-black border-educaro-accent shadow-sm'
-                    : 'bg-educaro-main text-educaro-primary border-educaro-border hover:bg-educaro-secondary'
+                    ? 'btn-brand text-white border-brand shadow-sm'
+                    : 'bg-white text-gray-900 border-border hover:bg-gray-50'
                 }`}
               >
                 <span className="text-sm font-extrabold">{lvl}</span>
-                <span className={`text-[10px] font-medium tracking-tight ${isSelected ? 'text-white/80' : 'text-educaro-muted'}`}>
+                <span className={`text-[10px] font-medium tracking-tight ${isSelected ? 'text-white/90' : 'text-gray-500'}`}>
                   {lvl === CEFRLevel.A1 && 'Beginner'}
                   {lvl === CEFRLevel.A2 && 'Elementary'}
                   {lvl === CEFRLevel.B1 && 'Intermediate (Visa)'}
                   {lvl === CEFRLevel.B2 && 'Fluent (Uni)'}
                 </span>
                 {isActual && (
-                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'bg-[#E5E7EB] text-educaro-primary'}`}>
+                  <span className={`text-[9px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-white/20 text-white' : 'badge-soft'}`}>
                     Current
                   </span>
                 )}
@@ -146,10 +146,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             onChange={(e) => setSimulatedLevel(cefrLevels[parseInt(e.target.value, 10)])}
             className="w-full accent-[#15803D] cursor-pointer"
           />
-          <div className="flex justify-between text-[10px] text-educaro-muted mt-1 font-medium">
+          <div className="flex justify-between text-[10px] text-gray-600 mt-1 font-medium">
             <span>A1 (Foundation)</span>
             <span>A2 (Everyday)</span>
-            <span className="font-bold text-educaro-accent">B1 (Opportunity / Ausbildung)</span>
+            <span className="font-bold text-brand">B1 (Opportunity / Ausbildung)</span>
             <span>B2 (Direct University)</span>
           </div>
         </div>
@@ -158,10 +158,10 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
       {/* Instant Diff Summary Banner */}
       <div className={`p-4 rounded-2xl border transition-all ${
         isStatusUpgraded
-          ? 'bg-educaro-icon/70 border-educaro-accent/30 text-emerald-950'
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
           : reqDelta > 0
-          ? 'bg-educaro-icon/70 border-educaro-accent/20 text-blue-950'
-          : 'bg-educaro-main border-educaro-border text-educaro-primary'
+          ? 'bg-blue-50 border-blue-200 text-blue-950'
+          : 'bg-gray-50 border-border text-gray-900'
       }`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
@@ -180,22 +180,22 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 bg-white/70 px-3.5 py-2 rounded-xl border border-current/20">
+          <div className="flex items-center gap-3 shrink-0 bg-white/90 px-3.5 py-2 rounded-xl border border-border">
             <div>
-              <span className="text-[9px] uppercase font-bold text-educaro-muted block">Eligibility Score</span>
+              <span className="text-[9px] uppercase font-bold text-gray-500 block">Eligibility Score</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-sm line-through text-educaro-muted">{actualEvaluation.scorePct}%</span>
-                <ArrowRight className="w-3 h-3 text-educaro-accent" />
-                <span className="text-base font-extrabold text-educaro-primary">{simEval.scorePct}%</span>
+                <span className="text-sm line-through text-gray-400">{actualEvaluation.scorePct}%</span>
+                <ArrowRight className="w-3 h-3 text-brand" />
+                <span className="text-base font-extrabold text-gray-900">{simEval.scorePct}%</span>
               </div>
             </div>
-            <div className="h-7 w-px bg-[#E5E7EB]" />
+            <div className="h-7 w-px bg-border" />
             <div>
-              <span className="text-[9px] uppercase font-bold text-educaro-muted block">Simulated Status</span>
+              <span className="text-[9px] uppercase font-bold text-gray-500 block">Simulated Status</span>
               <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                 simEval.status === QualificationStatus.ELIGIBLE
-                  ? 'bg-emerald-100 text-educaro-accent'
-                  : 'bg-amber-100 text-educaro-accent'
+                  ? 'badge-soft'
+                  : 'badge-warning'
               }`}>
                 {simStatusLabel}
               </span>
@@ -219,17 +219,17 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
           
           {/* Simulated Met Requirements */}
           <div className="space-y-2">
-            <span className="text-[11px] font-bold text-educaro-accent flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-educaro-accent" />
+            <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Met in this scenario ({simEval.passedCriteria.length})</span>
             </span>
             <div className="space-y-2">
               {simEval.passedCriteria.map((crit, idx) => (
                 <div
                   key={idx}
-                  className="p-3 rounded-xl bg-white border border-educaro-border text-xs text-educaro-primary flex items-start gap-2 shadow-2xs"
+                  className="p-3 rounded-xl bg-white border border-border text-xs text-gray-900 flex items-start gap-2 shadow-2xs"
                 >
-                  <span className="text-educaro-accent font-bold mt-0.5">✓</span>
+                  <span className="text-emerald-600 font-bold mt-0.5">✓</span>
                   <span className="leading-relaxed">{crit}</span>
                 </div>
               ))}
@@ -238,33 +238,33 @@ export const WhatIfSimulator: React.FC<WhatIfSimulatorProps> = ({
 
           {/* Simulated Outstanding Requirements */}
           <div className="space-y-2">
-            <span className="text-[11px] font-bold text-educaro-accent flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
               <span>Still required ({simEval.missingRequirements.length})</span>
             </span>
             <div className="space-y-2">
               {simEval.missingRequirements.length === 0 ? (
-                <div className="p-4 rounded-xl bg-educaro-icon border border-educaro-accent/20 text-xs text-educaro-accent">
+                <div className="p-4 rounded-xl badge-soft text-xs">
                   ✓ All requirements satisfied in this scenario! You would be ready for unconditional submission.
                 </div>
               ) : (
                 simEval.missingRequirements.map((req) => (
                   <div
                     key={req.id}
-                    className="p-3.5 rounded-xl bg-white border border-educaro-border text-xs space-y-1 shadow-2xs"
+                    className="p-3.5 rounded-xl bg-white border border-border text-xs space-y-1 shadow-2xs"
                   >
                     <div className="flex items-center justify-between gap-1">
-                      <span className="font-bold text-educaro-primary">{req.title}</span>
+                      <span className="font-bold text-gray-900">{req.title}</span>
                       <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                         req.severity === 'BLOCKING'
-                          ? 'bg-rose-100 text-educaro-accent'
-                          : 'bg-blue-100 text-educaro-accent'
+                          ? 'badge-critical'
+                          : 'badge-soft'
                       }`}>
                         {req.severity}
                       </span>
                     </div>
-                    <p className="text-[11px] text-educaro-muted">{req.description}</p>
-                    <p className="text-[11px] font-medium text-educaro-accent pt-0.5">
+                    <p className="text-[11px] text-gray-600">{req.description}</p>
+                    <p className="text-[11px] font-medium text-emerald-700 pt-0.5">
                       Action: {req.actionableStep}
                     </p>
                   </div>

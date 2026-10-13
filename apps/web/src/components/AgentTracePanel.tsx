@@ -12,14 +12,6 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
   const { agentEvents, refreshJourney } = useJourney();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const interval = setInterval(() => {
-      refreshJourney();
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [isOpen, refreshJourney]);
-
   if (!isOpen) return null;
 
   const toggleExpand = (id: string) => {
@@ -27,43 +19,43 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
   };
 
   const getAgentColor = (agent: string) => {
-    if (agent.includes('Intake')) return 'bg-blue-100 text-educaro-accent border-blue-200';
-    if (agent.includes('Extraction')) return 'bg-amber-100 text-educaro-accent border-educaro-accent/20';
-    if (agent.includes('Consistency')) return 'bg-rose-100 text-educaro-accent border-educaro-accent/20';
-    if (agent.includes('Qualification')) return 'bg-emerald-100 text-educaro-accent border-educaro-accent/20';
-    if (agent.includes('CV')) return 'bg-purple-100 text-educaro-accent border-purple-200';
-    return 'bg-educaro-icon text-educaro-primary border-educaro-border';
+    if (agent.includes('Profile') || agent.includes('Intake')) return 'bg-blue-50 text-blue-700 border-blue-200';
+    if (agent.includes('Extraction')) return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (agent.includes('Consistency')) return 'bg-rose-50 text-rose-700 border-rose-200';
+    if (agent.includes('Qualification')) return 'badge-soft';
+    if (agent.includes('CV')) return 'bg-purple-50 text-purple-700 border-purple-200';
+    return 'bg-gray-100 text-gray-800 border-border';
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-educaro-main shadow-2xl border-l border-educaro-border flex flex-col transition-transform duration-300 ease-in-out">
+    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-white shadow-2xl border-l border-border flex flex-col text-gray-900 transition-transform duration-300 ease-in-out">
       {/* Header */}
-      <div className="p-4 bg-educaro-main border-b border-educaro-border flex items-center justify-between">
+      <div className="p-4 bg-white border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-educaro-accent text-black flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg btn-brand text-white flex items-center justify-center">
             <Activity className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-educaro-primary flex items-center gap-2">
+            <h2 className="text-sm font-bold text-gray-900 flex items-center gap-2">
               Agent Orchestration Trace
-              <span className="text-[10px] font-normal px-2 py-0.5 rounded-full bg-educaro-icon text-educaro-muted border border-educaro-border">
+              <span className="text-[10px] font-normal px-2 py-0.5 rounded-full badge-soft">
                 Live Feed
               </span>
             </h2>
-            <p className="text-[11px] text-educaro-muted">Real-time audit log of agent calls and tool invocations</p>
+            <p className="text-[11px] text-gray-600">Real-time audit log of agent calls and tool invocations</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={refreshJourney}
-            className="p-1.5 text-xs text-educaro-muted hover:text-educaro-primary hover:bg-educaro-secondary rounded transition-colors"
+            className="p-1.5 text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
             title="Refresh events"
           >
             Refresh
           </button>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-educaro-muted hover:text-educaro-primary hover:bg-educaro-secondary transition-colors"
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -73,10 +65,10 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
       {/* Events List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {agentEvents.length === 0 ? (
-          <div className="p-8 text-center text-educaro-muted text-sm">
+          <div className="p-8 text-center text-gray-500 text-sm">
             <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>No agent actions recorded yet.</p>
-            <p className="text-xs mt-1">Actions performed by Intake, Extraction, Consistency, and Qualification agents will appear here live.</p>
+            <p className="text-xs mt-1">Actions performed by Profile System, Extraction, Consistency, and Qualification services will appear here live.</p>
           </div>
         ) : (
           agentEvents.map((evt) => {
@@ -84,7 +76,7 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
             return (
               <div
                 key={evt.id}
-                className="bg-educaro-main rounded-xl border border-educaro-border p-3 text-xs shadow-xs transition-all hover:border-educaro-accent"
+                className="bg-gray-50 rounded-xl border border-border p-3 text-xs shadow-xs transition-all hover:border-brand"
               >
                 {/* Event Top Bar */}
                 <div
@@ -95,12 +87,12 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
                     <span className={`px-2 py-0.5 rounded-full font-semibold border text-[11px] ${getAgentColor(evt.agent)}`}>
                       {evt.agent}
                     </span>
-                    <span className="text-educaro-muted font-mono">→</span>
-                    <span className="font-mono text-educaro-primary font-medium bg-educaro-icon px-1.5 py-0.5 rounded text-[11px]">
+                    <span className="text-gray-400 font-mono">→</span>
+                    <span className="font-mono text-gray-900 font-medium bg-white border border-border px-1.5 py-0.5 rounded text-[11px]">
                       {evt.tool}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-educaro-muted">
+                  <div className="flex items-center gap-2 text-gray-500">
                     {evt.durationMs !== undefined && (
                       <span className="flex items-center gap-1 font-mono text-[10px]">
                         <Clock className="w-3 h-3" />
@@ -113,8 +105,8 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
 
                 {/* Reason / Why */}
                 {evt.reason && (
-                  <div className="mt-2 text-educaro-primary text-[12px] bg-educaro-main p-2 rounded-lg border border-educaro-border/60">
-                    <span className="font-semibold text-educaro-muted text-[10px] uppercase tracking-wider block mb-0.5">
+                  <div className="mt-2 text-gray-900 text-[12px] bg-white p-2 rounded-lg border border-border">
+                    <span className="font-semibold text-gray-500 text-[10px] uppercase tracking-wider block mb-0.5">
                       Agent Rationale / Why:
                     </span>
                     {evt.reason}
@@ -123,9 +115,9 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
 
                 {/* Confidence */}
                 {evt.confidence !== undefined && (
-                  <div className="mt-2 flex items-center justify-between text-[11px] text-educaro-muted">
+                  <div className="mt-2 flex items-center justify-between text-[11px] text-gray-500">
                     <span className="flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3 text-educaro-accent" />
+                      <CheckCircle className="w-3 h-3 text-brand" />
                       Confidence: {(evt.confidence * 100).toFixed(0)}%
                     </span>
                     <span className="text-[10px]">
@@ -136,16 +128,16 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
 
                 {/* Expanded Details: Input & Output */}
                 {isExpanded && (
-                  <div className="mt-3 pt-2 border-t border-educaro-border space-y-2 font-mono text-[11px]">
+                  <div className="mt-3 pt-2 border-t border-border space-y-2 font-mono text-[11px]">
                     <div>
-                      <span className="text-educaro-muted font-semibold text-[10px] uppercase">Input Payload:</span>
-                      <pre className="mt-1 p-2 rounded bg-educaro-secondary text-educaro-primary overflow-x-auto whitespace-pre-wrap">
+                      <span className="text-gray-500 font-semibold text-[10px] uppercase">Input Payload:</span>
+                      <pre className="mt-1 p-2 rounded bg-gray-100 text-gray-900 border border-border overflow-x-auto whitespace-pre-wrap">
                         {typeof evt.input === 'string' ? evt.input : JSON.stringify(evt.input, null, 2)}
                       </pre>
                     </div>
                     <div>
-                      <span className="text-educaro-muted font-semibold text-[10px] uppercase">Output Result:</span>
-                      <pre className="mt-1 p-2 rounded bg-educaro-secondary text-educaro-primary overflow-x-auto whitespace-pre-wrap">
+                      <span className="text-gray-500 font-semibold text-[10px] uppercase">Output Result:</span>
+                      <pre className="mt-1 p-2 rounded bg-gray-100 text-gray-900 border border-border overflow-x-auto whitespace-pre-wrap">
                         {typeof evt.output === 'string' ? evt.output : JSON.stringify(evt.output, null, 2)}
                       </pre>
                     </div>
@@ -158,7 +150,7 @@ export const AgentTracePanel: React.FC<AgentTracePanelProps> = ({ isOpen, onClos
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 bg-educaro-main border-t border-educaro-border text-center text-[11px] text-educaro-muted">
+      <div className="p-3 bg-gray-50 border-t border-border text-center text-[11px] text-gray-500">
         Every state change is audited & strictly labeled with provenance
       </div>
     </div>

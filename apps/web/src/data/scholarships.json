@@ -1,0 +1,86 @@
+[
+  {
+    "id": "daad-epos",
+    "name": "DAAD EPOS",
+    "provider": "DAAD",
+    "eligibilitySummary": "For graduates from developing countries with at least two years of professional experience.",
+    "coverage": "934 EUR/month + travel allowance and health insurance",
+    "deadline": "Varies by university (typically August - October)",
+    "link": "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/",
+    "criteria": {
+      "pathways": ["study", "masters", "phd"],
+      "fieldsOfStudy": ["Engineering", "Economics", "Development Studies", "Public Health", "ALL"],
+      "nationalities": ["DEVELOPING"] 
+    }
+  },
+  {
+    "id": "erasmus-plus",
+    "name": "Erasmus+ Grant",
+    "provider": "European Union",
+    "eligibilitySummary": "For students undertaking a semester/year abroad or a joint master's degree within the EU.",
+    "coverage": "Approx. 300 - 600 EUR/month depending on the host country",
+    "deadline": "Depends on the home university's internal deadlines",
+    "link": "https://erasmus-plus.ec.europa.eu/opportunities/opportunities-for-individuals/students",
+    "criteria": {
+      "pathways": ["study", "exchange"],
+      "fieldsOfStudy": ["ALL"],
+      "nationalities": ["ALL"]
+    }
+  },
+  {
+    "id": "heinrich-boell",
+    "name": "Heinrich Böll Foundation Scholarships",
+    "provider": "Heinrich Böll Stiftung",
+    "eligibilitySummary": "For international students who show outstanding academic record and social/political engagement.",
+    "coverage": "Approx. 934 EUR/month + individual allowances",
+    "deadline": "March 1 and September 1 annually",
+    "link": "https://www.boell.de/en/scholarships",
+    "criteria": {
+      "pathways": ["study", "masters", "phd"],
+      "fieldsOfStudy": ["ALL"],
+      "nationalities": ["ALL"]
+    }
+  },
+  {
+    "id": "deutschlandstipendium",
+    "name": "Deutschlandstipendium",
+    "provider": "German Federal Government & Private Sponsors",
+    "eligibilitySummary": "Merit-based scholarship for high-achieving students enrolled at participating German universities.",
+    "coverage": "300 EUR/month",
+    "deadline": "Varies by participating university",
+    "link": "https://www.deutschlandstipendium.de/deutschlandstipendium/de/services/english/english_node.html",
+    "criteria": {
+      "pathways": ["study", "bachelors", "masters"],
+      "fieldsOfStudy": ["ALL"],
+      "nationalities": ["ALL"]
+    }
+  },
+  {
+    "id": "kas",
+    "name": "Konrad-Adenauer-Stiftung (KAS) Scholarships",
+    "provider": "Konrad-Adenauer-Stiftung",
+    "eligibilitySummary": "For international students demonstrating academic excellence and a strong interest in politics/society.",
+    "coverage": "Approx. 934 EUR/month + study cost allowance",
+    "deadline": "July 15 annually",
+    "link": "https://www.kas.de/en/web/begabtenfoerderung-und-kultur/auslaendische-studierende",
+    "criteria": {
+      "pathways": ["study", "masters", "phd"],
+      "fieldsOfStudy": ["ALL"],
+      "nationalities": ["ALL"]
+    }
+  },
+  {
+    "id": "rosa-luxemburg",
+    "name": "Rosa Luxemburg Stiftung Scholarships",
+    "provider": "Rosa Luxemburg Stiftung",
+    "eligibilitySummary": "For international students with high academic and professional qualifications, engaged in social, political or community activities.",
+    "coverage": "Approx. 934 EUR/month",
+    "deadline": "April 1 and October 1 annually",
+    "link": "https://www.rosalux.de/en/foundation/studienwerk",
+    "criteria": {
+      "pathways": ["study", "masters", "phd"],
+      "fieldsOfStudy": ["ALL"],
+      "nationalities": ["ALL"]
+    }
+  }
+]

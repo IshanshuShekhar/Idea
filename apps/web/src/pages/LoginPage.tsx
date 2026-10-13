@@ -139,7 +139,7 @@ export const LoginPage: React.FC = () => {
 
         {/* Error Alert */}
         {error && (
-          <div className="p-3 rounded-lg bg-educaro-icon0/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -181,7 +181,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-blue-600 hover:bg-educaro-icon0 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
             >
               <LogIn className="w-4 h-4" />
               {loading ? 'Signing in...' : 'Sign In'}
@@ -210,7 +210,7 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 bg-blue-600 hover:bg-educaro-icon0 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2"
                 >
                   {loading ? 'Sending OTP...' : 'Send Login Code'}
                 </button>

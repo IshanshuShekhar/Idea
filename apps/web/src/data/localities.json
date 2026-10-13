@@ -1,0 +1,56 @@
+[
+  {
+    "id": "berlin",
+    "name": "Berlin",
+    "overview": "The multicultural capital of Germany, famous for its startup scene, rich history, and vibrant nightlife.",
+    "costOfLiving": "€950 - €1,300/month",
+    "studentHousingPlatforms": ["WG-Gesucht", "HousingAnywhere", "Spotahome"],
+    "publicTransportNote": "Excellent connectivity via U-Bahn, S-Bahn, and buses. Semesterticket usually covers ABC zones.",
+    "matchKeywords": ["berlin"]
+  },
+  {
+    "id": "munich",
+    "name": "Munich",
+    "overview": "A powerhouse of tech and engineering with a high quality of life, beautiful architecture, and access to the Alps.",
+    "costOfLiving": "€1,200 - €1,600/month (Highest in Germany)",
+    "studentHousingPlatforms": ["WG-Gesucht", "Studentenwerk München", "Mr. Lodge"],
+    "publicTransportNote": "MVV network is extensive. Semesterticket terms vary; check TUM/LMU guidelines.",
+    "matchKeywords": ["munich", "münchen", "muenchen"]
+  },
+  {
+    "id": "stuttgart",
+    "name": "Stuttgart",
+    "overview": "The cradle of the automobile industry, known for engineering, innovation, and a strong economy surrounded by vineyards.",
+    "costOfLiving": "€1,000 - €1,400/month",
+    "studentHousingPlatforms": ["WG-Gesucht", "Studierendenwerk Stuttgart", "HousingAnywhere"],
+    "publicTransportNote": "VVS network is well integrated. A regional Semesterticket is often available.",
+    "matchKeywords": ["stuttgart"]
+  },
+  {
+    "id": "frankfurt",
+    "name": "Frankfurt am Main",
+    "overview": "Germany's financial hub, featuring an impressive skyline, excellent international connections, and a diverse population.",
+    "costOfLiving": "€1,100 - €1,500/month",
+    "studentHousingPlatforms": ["WG-Gesucht", "Studierendenwerk Frankfurt", "Spotahome"],
+    "publicTransportNote": "RMV provides broad coverage across the region. Semesterticket covers a wide area in Hesse.",
+    "matchKeywords": ["frankfurt"]
+  },
+  {
+    "id": "hamburg",
+    "name": "Hamburg",
+    "overview": "A major port city with a maritime spirit, strong media and logistics sectors, and lively cultural scenes.",
+    "costOfLiving": "€1,000 - €1,450/month",
+    "studentHousingPlatforms": ["WG-Gesucht", "Studierendenwerk Hamburg", "HousingAnywhere"],
+    "publicTransportNote": "HVV network covers the city well. Semesterticket includes ferries in the harbor.",
+    "matchKeywords": ["hamburg"]
+  },
+  {
+    "id": "cologne",
+    "name": "Cologne (Köln)",
+    "overview": "Known for the iconic Dom, a cheerful local culture, media industries, and a large, welcoming student population.",
+    "costOfLiving": "€950 - €1,350/month",
+    "studentHousingPlatforms": ["WG-Gesucht", "Kölner Studierendenwerk", "Spotahome"],
+    "publicTransportNote": "KVB offers great local transit. The NRW-Ticket (Semesterticket) covers the entire state of North Rhine-Westphalia.",
+    "matchKeywords": ["cologne", "köln", "koeln"]
+  }
+]

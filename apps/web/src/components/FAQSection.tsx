@@ -88,19 +88,19 @@ export const FAQSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-20 bg-educaro-secondary border-t border-educaro-border">
+    <section id="faq" className="py-20 bg-educaro-secondary border-t border-border">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-educaro-icon text-educaro-accent border border-educaro-border text-xs font-semibold uppercase tracking-wider mb-3">
-            <HelpCircle className="w-3.5 h-3.5" />
+          <div className="badge-soft normal-case text-xs inline-flex items-center gap-2 mb-3">
+            <HelpCircle className="w-3.5 h-3.5 text-brand" />
             <span>Got Questions?</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-educaro-primary tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
             Frequently Asked Questions
           </h2>
-          <p className="text-sm text-educaro-muted mt-2">
+          <p className="text-sm text-gray-600 mt-2">
             Everything you need to know about navigating your study, Ausbildung, and career journey to Germany with Educaro.
           </p>
         </div>
@@ -112,24 +112,24 @@ export const FAQSection: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="bg-educaro-main rounded-2xl border border-educaro-border overflow-hidden transition-all shadow-xs"
+                className="bg-white rounded-2xl border border-border overflow-hidden transition-all shadow-xs"
               >
                 <button
                   onClick={() => toggle(item.id)}
                   aria-expanded={isOpen}
-                  className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 hover:bg-educaro-icon/50 transition-colors"
+                  className="w-full text-left px-5 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition-colors"
                 >
-                  <span className="text-sm sm:text-base font-semibold text-educaro-primary">
+                  <span className="text-sm sm:text-base font-semibold text-gray-900">
                     {item.id}. {item.question}
                   </span>
-                  <div className={`p-1 rounded-full bg-educaro-icon text-educaro-accent transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                  <div className={`p-1 rounded-full bg-gray-100 text-brand transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
                     <ChevronDown className="w-4 h-4" />
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-educaro-muted leading-relaxed border-t border-educaro-border/60 animate-in fade-in duration-200">
-                    <p className="bg-educaro-main p-4 rounded-xl border border-educaro-border/50 text-educaro-primary">
+                  <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-border animate-in fade-in duration-200">
+                    <p className="bg-gray-50 p-4 rounded-xl border border-border text-gray-700">
                       {item.answer}
                     </p>
                   </div>

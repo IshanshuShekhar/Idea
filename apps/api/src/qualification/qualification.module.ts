@@ -12,3 +12,4 @@ import { ProfileModule } from '../profile/profile.module';
   exports: [QualificationService],
 })
 export class QualificationModule {}
+

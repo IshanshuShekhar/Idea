@@ -2,6 +2,7 @@ import { Pathway } from '../enums/pathway.enum';
 
 export type JourneyStepId =
   | 'GOAL_INTAKE'
+  | 'PROFILE_FORM'
   | 'PROFILE_CHAT'
   | 'VIDEO_INTRO'
   | 'DOCUMENTS'

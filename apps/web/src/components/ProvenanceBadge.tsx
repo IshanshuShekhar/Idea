@@ -20,18 +20,29 @@ export const ProvenanceBadge: React.FC<ProvenanceBadgeProps> = ({
   const getIcon = () => {
     switch (provenance) {
       case Provenance.VERIFIED:
-        return <CheckCircle2 className="w-3.5 h-3.5 text-educaro-accent" />;
+        return <CheckCircle2 className="w-3.5 h-3.5" />;
       case Provenance.APPLICANT_PROVIDED:
-        return <User className="w-3.5 h-3.5 text-educaro-accent" />;
+        return <User className="w-3.5 h-3.5" />;
       case Provenance.AI_EXTRACTED:
-        return <Bot className="w-3.5 h-3.5 text-educaro-accent" />;
+        return <Bot className="w-3.5 h-3.5" />;
       case Provenance.AI_GENERATED:
-        return <Sparkles className="w-3.5 h-3.5 text-educaro-accent" />;
+        return <Sparkles className="w-3.5 h-3.5" />;
     }
   };
 
   const getStyle = () => {
-    return 'bg-educaro-icon text-educaro-accent border-educaro-accent/20';
+    switch (provenance) {
+      case Provenance.VERIFIED:
+        return 'badge-soft';
+      case Provenance.APPLICANT_PROVIDED:
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      case Provenance.AI_EXTRACTED:
+        return 'badge-warning';
+      case Provenance.AI_GENERATED:
+        return 'bg-purple-50 text-purple-700 border-purple-200';
+      default:
+        return 'badge-soft';
+    }
   };
 
   return (

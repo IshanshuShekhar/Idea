@@ -69,10 +69,51 @@ export interface SimulationResultPayload {
   diff: QualificationDiff;
 }
 
+export type QualificationStatusTier = 'STRONG_MATCH' | 'GOOD_MATCH' | 'CONDITIONAL_MATCH' | 'ACTION_REQUIRED';
+
+export interface QualificationFactorScore {
+  id: string;
+  factorName: string;
+  category: 'ACADEMIC' | 'GERMAN' | 'ENGLISH' | 'EXAMS' | 'PREREQUISITES' | 'EXPERIENCE' | 'DOCUMENTS' | 'FINANCIAL';
+  status: 'EXCEEDS_REQUIREMENT' | 'GOOD_MATCH' | 'NEEDS_IMPROVEMENT' | 'MISSING_REQUIREMENT' | 'NOT_APPLICABLE';
+  statusLabel: string;
+  pointsEarned: number;
+  maxPoints: number;
+  percentageContribution: number;
+  reason: string;
+  missingItems?: string[];
+  recommendedAction: string;
+  actionRoute?: string;
+}
+
+export interface QualificationScoringMethodology {
+  title: string;
+  description: string;
+  factorWeights: { factorName: string; weightPercentage: number; description: string }[];
+  provisionalNotes?: string;
+  disclaimer: string;
+}
+
+export interface NextStepActionItem {
+  id: string;
+  title: string;
+  description: string;
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
+  category: string;
+  targetRoute: string;
+  ctaText: string;
+}
+
 export interface QualificationEvaluation {
   pathway: Pathway;
   status: QualificationStatus;
   scorePct: number;
+  statusTier?: QualificationStatusTier;
+  statusLabel?: string;
+  isProvisional?: boolean;
+  factors?: QualificationFactorScore[];
+  methodology?: QualificationScoringMethodology;
+  nextSteps?: NextStepActionItem[];
   headline: string;
   summary: string;
   needsGermanSupport: boolean;

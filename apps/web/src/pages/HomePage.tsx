@@ -4,7 +4,10 @@ import { Navbar } from '../components/Navbar';
 import { FloatingJourneyCard } from '../components/FloatingJourneyCard';
 import { FAQSection } from '../components/FAQSection';
 import { AgentTracePanel } from '../components/AgentTracePanel';
+import { ThreeDBackground } from '../components/ThreeDBackground';
 import { useAuth } from '../context/AuthContext';
+import { useJourney } from '../context/JourneyContext';
+import { getResumeRoute } from '../utils/workflow';
 import { motion } from 'framer-motion';
 import {
   Check,
@@ -21,18 +24,23 @@ import {
 
 export const HomePage: React.FC = () => {
   const { user } = useAuth();
+  const { journeyState } = useJourney();
   const navigate = useNavigate();
   const [isTraceOpen, setIsTraceOpen] = useState(false);
 
+  const primaryTargetRoute = user ? getResumeRoute(user, journeyState) : '/auth?mode=signup';
+
   return (
-    <div className="min-h-screen bg-educaro-main flex flex-col text-educaro-primary">
+    <div className="min-h-screen bg-black flex flex-col text-white">
       {/* Top Navbar */}
       <Navbar onToggleTracePanel={() => setIsTraceOpen(!isTraceOpen)} isTraceOpen={isTraceOpen} />
 
       {/* Main Hero Section (PRD Section 9.1) */}
       <section className="relative overflow-hidden min-h-[640px] lg:min-h-[720px] flex items-center justify-center border-b border-educaro-border">
-        {/* Background glow */}
-        <div className="absolute inset-0 z-0 bg-radial-gradient from-blue-900/20 via-black to-[#040112] opacity-80" />
+        {/* 3D Background */}
+        <div className="absolute inset-0 z-0 bg-[#040112]">
+          <ThreeDBackground className="w-full h-full" />
+        </div>
 
         {/* Hero Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 w-full">
@@ -60,10 +68,10 @@ export const HomePage: React.FC = () => {
               {/* CTAs */}
               <div className="flex flex-wrap items-center gap-6 pt-6">
                 <Link
-                  to={user ? '/journey/goal' : '/auth?mode=signup'}
+                  to={primaryTargetRoute}
                   className="inline-flex items-center justify-center px-10 py-4 rounded-full bg-white text-black text-sm font-medium hover:bg-gray-200 hover:scale-105 transition-all duration-300"
                 >
-                  Start Journey
+                  Start My Journey
                 </Link>
 
                 <a
@@ -116,14 +124,14 @@ export const HomePage: React.FC = () => {
                   <GraduationCap className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-display font-medium text-white mb-3">
-                  1. Profile Intake
+                  1. Comprehensive Applicant Profile
                 </h3>
                 <p className="text-sm text-gray-400 leading-relaxed font-light">
-                  Choose between University Study (Master's/Bachelor's), Dual Vocational Training, or Direct Employment. Our Intake Agent captures your educational background intelligently.
+                  Choose between University Study (Master&apos;s/Bachelor&apos;s), Dual Vocational Training, or Direct Employment. Record your credentials once in a unified, verified profile.
                 </p>
               </div>
               <div className="mt-8 pt-6 border-t border-white/10 text-[11px] font-medium text-white uppercase tracking-widest flex items-center gap-2">
-                <span>Intake Agent Active</span>
+                <span>Applicant Profile Active</span>
                 <Check className="w-3.5 h-3.5" />
               </div>
             </div>
@@ -177,7 +185,7 @@ export const HomePage: React.FC = () => {
               Create an account or login securely. No consultant fees required to build your verified profile.
             </p>
             <Link
-              to={user ? '/journey/goal' : '/auth?mode=signup'}
+              to={primaryTargetRoute}
               className="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white hover:bg-gray-200 active:scale-95 text-black text-sm font-medium transition-all duration-300"
             >
               <span>{user ? 'Enter Your Journey' : 'Secure Login'}</span>
@@ -201,8 +209,8 @@ export const HomePage: React.FC = () => {
           </div>
           <div className="flex items-center gap-6">
             <a href="#faq" className="hover:text-white transition-colors duration-300">FAQ</a>
-            <Link to="/journey/goal" className="hover:text-white transition-colors duration-300">Journey</Link>
-            <Link to="/candidate-details" className="hover:text-white transition-colors duration-300">Profile</Link>
+            <Link to={user ? primaryTargetRoute : '/journey/details'} className="hover:text-white transition-colors duration-300">Journey</Link>
+            <Link to="/journey/details" className="hover:text-white transition-colors duration-300">Profile</Link>
           </div>
         </div>
       </footer>

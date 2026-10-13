@@ -79,35 +79,35 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="bg-educaro-main rounded-3xl border border-educaro-border max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl border border-border max-w-lg w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="p-5 bg-educaro-main border-b border-educaro-border flex items-center justify-between">
+        <div className="p-5 bg-white border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className={`w-8 h-8 rounded-lg ${isPremiumActive ? 'bg-educaro-accent' : 'bg-educaro-accent'} text-white flex items-center justify-center`}>
+            <div className={`w-8 h-8 rounded-lg ${isPremiumActive ? 'btn-brand text-white' : 'bg-gray-100 text-gray-700'} flex items-center justify-center`}>
               {isPremiumActive ? <UserCheck className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-educaro-primary">
+                <h3 className="text-sm font-bold text-gray-900">
                   {isPremiumActive ? 'Schedule Senior Advisor Call' : 'Consultant Support • Educaro Premium'}
                 </h3>
                 {isPremiumActive ? (
-                  <span className="text-[10px] font-bold text-educaro-accent bg-emerald-100 px-2 py-0.5 rounded-full">
+                  <span className="badge-soft text-[10px] font-bold px-2 py-0.5">
                     ✓ Entitlement Active
                   </span>
                 ) : (
-                  <span className="text-[10px] font-bold text-educaro-accent bg-educaro-icon px-2 py-0.5 rounded-full">
+                  <span className="badge-warning text-[10px] font-bold px-2 py-0.5">
                     Premium Feature
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-educaro-muted">{serviceTitle}</p>
+              <p className="text-[11px] text-gray-600">{serviceTitle}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-educaro-muted hover:text-educaro-primary hover:bg-educaro-secondary transition-colors"
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -117,32 +117,32 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
         <div className="p-6">
           {!isPremiumActive ? (
             <div className="space-y-5 text-center py-2">
-              <div className="w-14 h-14 rounded-2xl bg-educaro-icon border border-educaro-accent/20 text-educaro-accent flex items-center justify-center mx-auto shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
                 <Lock className="w-7 h-7" />
               </div>
               <div className="space-y-1.5">
-                <h4 className="text-base font-bold text-educaro-primary">
+                <h4 className="text-base font-bold text-gray-900">
                   Educaro Premium Required for 1-on-1 Sessions
                 </h4>
-                <p className="text-xs text-educaro-muted max-w-sm mx-auto leading-relaxed">
+                <p className="text-xs text-gray-600 max-w-sm mx-auto leading-relaxed">
                   Direct consultation with a senior German immigration and APS advisor is exclusively unlocked with <strong>Educaro Premium</strong> (90 days of full access).
                 </p>
               </div>
 
-              <div className="p-4 bg-educaro-main rounded-2xl border border-educaro-border text-left text-xs space-y-2.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-educaro-accent block">
+              <div className="p-4 bg-gray-50 rounded-2xl border border-border text-left text-xs space-y-2.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-brand block">
                   What is included in Educaro Premium:
                 </span>
-                <div className="flex items-center gap-2 text-educaro-primary">
-                  <CheckCircle2 className="w-4 h-4 text-educaro-accent shrink-0" />
+                <div className="flex items-center gap-2 text-gray-900">
+                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
                   <span>1-on-1 45-min Google Meet session with Senior German Advisor</span>
                 </div>
-                <div className="flex items-center gap-2 text-educaro-primary">
-                  <CheckCircle2 className="w-4 h-4 text-educaro-accent shrink-0" />
+                <div className="flex items-center gap-2 text-gray-900">
+                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
                   <span>Extended German Learning Path (C1 preparation & technical modules)</span>
                 </div>
-                <div className="flex items-center gap-2 text-educaro-primary">
-                  <CheckCircle2 className="w-4 h-4 text-educaro-accent shrink-0" />
+                <div className="flex items-center gap-2 text-gray-900">
+                  <CheckCircle2 className="w-4 h-4 text-brand shrink-0" />
                   <span>Priority APS and document verification queue</span>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
                     onClose();
                     navigate('/journey/payment');
                   }}
-                  className="w-full py-3 px-4 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 rounded-full btn-brand text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>Unlock Educaro Premium (₹100 / 90 Days)</span>
@@ -163,7 +163,7 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full py-2 text-xs font-semibold text-educaro-muted hover:text-educaro-primary transition-colors"
+                  className="w-full py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 transition-colors"
                 >
                   Maybe Later
                 </button>
@@ -171,27 +171,27 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
             </div>
           ) : isBooked ? (
             <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-educaro-accent flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-brand flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-1">
-                <h4 className="text-base font-bold text-educaro-primary">Consultation Call Confirmed!</h4>
-                <p className="text-xs text-educaro-muted max-w-sm mx-auto">
+                <h4 className="text-base font-bold text-gray-900">Consultation Call Confirmed!</h4>
+                <p className="text-xs text-gray-600 max-w-sm mx-auto">
                   A Google Meet invitation for <strong>{selectedDate}</strong> has been dispatched to <strong>{user?.email}</strong>.
                 </p>
               </div>
 
-              <div className="p-4 bg-educaro-main rounded-2xl border border-educaro-border text-left text-xs space-y-2">
+              <div className="p-4 bg-gray-50 rounded-2xl border border-border text-left text-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-educaro-muted">Advisor:</span>
-                  <span className="font-bold text-educaro-primary">Educaro Senior Immigration Consultant</span>
+                  <span className="text-gray-600">Advisor:</span>
+                  <span className="font-bold text-gray-900">Educaro Senior Immigration Consultant</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-educaro-muted">Selected Topic:</span>
-                  <span className="font-medium text-educaro-primary">{topic}</span>
+                  <span className="text-gray-600">Selected Topic:</span>
+                  <span className="font-medium text-gray-900">{topic}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-educaro-muted">Meeting Format:</span>
+                  <span className="text-gray-600">Meeting Format:</span>
                   <span className="font-medium text-emerald-700 flex items-center gap-1">
                     <Video className="w-3.5 h-3.5" /> 1-on-1 Google Meet (45 mins)
                   </span>
@@ -200,7 +200,7 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
 
               <button
                 onClick={onClose}
-                className="w-full py-2.5 rounded-full bg-educaro-accent text-black text-xs font-semibold hover:bg-educaro-accentHover transition-colors shadow-xs"
+                className="w-full py-2.5 rounded-full btn-brand text-white text-xs font-semibold transition-colors shadow-xs"
               >
                 Close & Return to Dashboard
               </button>
@@ -208,8 +208,8 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
           ) : (
             <div className="space-y-4">
               
-              <div className="p-3.5 bg-educaro-icon/80 rounded-2xl border border-educaro-accent/20 text-xs text-[#116830] flex items-start gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-educaro-accent shrink-0 mt-0.5" />
+              <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
                 <p className="leading-relaxed">
                   Your account holds an active <strong>Consultant Review</strong> entitlement. Choose your preferred slot below to connect directly with an Educaro advisor.
                 </p>
@@ -217,8 +217,8 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
 
               {/* Time Slots */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-educaro-primary flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-educaro-accent" />
+                <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-brand" />
                   <span>Select Consultation Slot:</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -229,8 +229,8 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
                       onClick={() => setSelectedDate(d)}
                       className={`p-2.5 rounded-xl border text-xs text-left font-medium transition-all ${
                         selectedDate === d
-                          ? 'border-educaro-accent bg-educaro-accent text-black shadow-xs'
-                          : 'border-educaro-border bg-educaro-main text-educaro-primary hover:bg-educaro-secondary'
+                          ? 'btn-brand text-white shadow-xs'
+                          : 'border-border bg-gray-50 text-gray-900 hover:bg-gray-100'
                       }`}
                     >
                       {d}
@@ -241,14 +241,14 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
 
               {/* Topic */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-educaro-primary flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-educaro-accent" />
+                <label className="text-xs font-bold text-gray-900 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-brand" />
                   <span>Primary Consultation Focus:</span>
                 </label>
                 <select
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-educaro-border bg-white text-xs text-educaro-primary focus:outline-none focus:ring-1 focus:ring-educaro-accent"
+                  className="w-full p-2.5 rounded-xl border border-border bg-white text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-brand"
                 >
                   {topics.map((t) => (
                     <option key={t} value={t}>
@@ -260,7 +260,7 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
 
               {/* Extra Notes */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-educaro-primary">
+                <label className="text-xs font-bold text-gray-900">
                   Specific questions for your advisor (optional):
                 </label>
                 <textarea
@@ -268,7 +268,7 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g. Inconsistency in my degree date, or German A2 to B1 exam schedule..."
-                  className="w-full p-2.5 rounded-xl border border-educaro-border bg-white text-xs text-educaro-primary focus:outline-none focus:ring-1 focus:ring-educaro-accent"
+                  className="w-full p-2.5 rounded-xl border border-border bg-white text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
 
@@ -277,7 +277,7 @@ export const AdvisorBookingModal: React.FC<AdvisorBookingModalProps> = ({
                   type="button"
                   onClick={handleConfirm}
                   disabled={isSubmitting}
-                  className="w-full py-3 px-4 rounded-full bg-educaro-accent text-black hover:bg-educaro-accentHover text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-full btn-brand text-white text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Video className="w-4 h-4" />
                   <span>{isSubmitting ? 'Confirming...' : 'Confirm Advisor Video Appointment'}</span>

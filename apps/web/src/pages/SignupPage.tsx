@@ -47,7 +47,7 @@ export const SignupPage: React.FC = () => {
 
         {/* Error Alert */}
         {error && (
-          <div className="p-3 rounded-lg bg-educaro-icon0/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+          <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -105,7 +105,7 @@ export const SignupPage: React.FC = () => {
                 type="checkbox"
                 checked={consent}
                 onChange={(e) => setConsent(e.target.checked)}
-                className="mt-0.5 rounded border-slate-700 bg-slate-950 text-educaro-accent focus:ring-blue-500"
+                className="mt-0.5 rounded border-slate-700 bg-slate-950 text-blue-500 focus:ring-blue-500"
               />
               <span className="text-xs text-slate-400 leading-tight">
                 I give consent to Educaro Deutschland GmbH to process my profile, credentials, and verification data for Germany pathway advisory (PRD Section 7 A5).
@@ -116,7 +116,7 @@ export const SignupPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 hover:bg-educaro-icon0 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/30"
           >
             <UserPlus className="w-4 h-4" />
             {loading ? 'Creating account...' : 'Create Account'}

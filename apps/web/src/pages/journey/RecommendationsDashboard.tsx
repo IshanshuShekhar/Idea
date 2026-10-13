@@ -103,10 +103,10 @@ export const RecommendationsDashboard: React.FC = () => {
       <div className="min-h-screen bg-educaro-secondary flex flex-col">
         <Navbar />
         <div className="flex-1 max-w-4xl mx-auto w-full p-8 flex items-center justify-center">
-          <div className="bg-educaro-icon text-red-700 p-6 rounded-xl border border-red-200 text-center">
+          <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-200 text-center">
             <ShieldAlert className="w-12 h-12 mx-auto mb-4 text-red-500" />
-            <h2 className="text-xl font-bold mb-2">Error Loading Recommendations</h2>
-            <p>{error}</p>
+            <h2 className="text-xl font-bold mb-2 text-red-900">Error Loading Recommendations</h2>
+            <p className="text-red-700">{error}</p>
             <button onClick={fetchData} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Try Again</button>
           </div>
         </div>
@@ -150,7 +150,7 @@ export const RecommendationsDashboard: React.FC = () => {
             <div className="relative z-10 flex-shrink-0">
               <button 
                 onClick={() => handleActionClick(gapsData.nextBestAction?.actionRoute)}
-                className="w-full md:w-auto px-8 py-4 bg-white text-educaro-accent rounded-xl font-bold text-lg hover:bg-educaro-icon hover:scale-105 transition-all shadow-lg hover:shadow-xl"
+                className="w-full md:w-auto px-8 py-4 bg-white text-emerald-950 border border-emerald-100 rounded-xl font-bold text-lg hover:bg-emerald-50 hover:scale-105 transition-all shadow-lg hover:shadow-xl"
               >
                 {gapsData.nextBestAction.actionLabel || 'Start Now'}
               </button>
@@ -165,13 +165,13 @@ export const RecommendationsDashboard: React.FC = () => {
             
             {/* Recommendations List Header & Filter */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h3 className="text-2xl font-bold text-educaro-primary">Action Plan</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Action Plan</h3>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-educaro-muted font-medium">Pathway:</span>
+                <span className="text-sm text-gray-700 font-medium">Pathway:</span>
                 <select 
                   value={selectedPathway}
                   onChange={(e) => setSelectedPathway(e.target.value as Pathway | 'ALL')}
-                  className="text-sm border-educaro-border rounded-lg focus:ring-educaro-accent focus:border-educaro-accent bg-white shadow-sm"
+                  className="text-sm border border-border rounded-lg focus:ring-brand focus:border-brand bg-white shadow-xs text-gray-900 px-3 py-1.5"
                 >
                   <option value="ALL">All Pathways</option>
                   <option value={Pathway.STUDY}>Study</option>
@@ -182,17 +182,17 @@ export const RecommendationsDashboard: React.FC = () => {
             </div>
 
             {/* Journey Progress Bar */}
-            <div className="bg-white rounded-xl shadow-sm border border-educaro-border p-6">
+            <div className="bg-white rounded-xl shadow-xs border border-border p-6">
               <div className="flex justify-between items-end mb-2">
                 <div>
-                  <h4 className="font-semibold text-educaro-primary">Journey Progress</h4>
-                  <p className="text-sm text-educaro-muted">{completedCount} of {totalCount} items completed</p>
+                  <h4 className="font-semibold text-gray-900">Journey Progress</h4>
+                  <p className="text-sm text-gray-600">{completedCount} of {totalCount} items completed</p>
                 </div>
-                <span className="text-2xl font-bold text-educaro-accent">{progressPct}%</span>
+                <span className="text-2xl font-bold text-emerald-700">{progressPct}%</span>
               </div>
               <div className="w-full bg-[#E5E7EB] rounded-full h-3 overflow-hidden">
                 <div 
-                  className="bg-educaro-accent h-3 rounded-full transition-all duration-1000" 
+                  className="bg-brand h-3 rounded-full transition-all duration-1000" 
                   style={{ width: `${progressPct}%` }} 
                 />
               </div>
@@ -201,10 +201,10 @@ export const RecommendationsDashboard: React.FC = () => {
             {/* Recommendation Cards */}
             <div className="space-y-4">
               {filteredRecommendations.length === 0 ? (
-                <div className="text-center p-12 bg-white rounded-xl border border-educaro-border border-dashed">
+                <div className="text-center p-12 bg-white rounded-xl border border-border border-dashed">
                   <CheckCircle2 className="w-12 h-12 mx-auto text-green-500 mb-4" />
-                  <h3 className="text-lg font-semibold text-educaro-primary">You're all caught up!</h3>
-                  <p className="text-educaro-muted">No pending actions for this pathway.</p>
+                  <h3 className="text-lg font-semibold text-gray-900">You're all caught up!</h3>
+                  <p className="text-gray-600">No pending actions for this pathway.</p>
                 </div>
               ) : (
                 filteredRecommendations.map((rec) => (
@@ -219,26 +219,26 @@ export const RecommendationsDashboard: React.FC = () => {
           <div className="space-y-8">
             
             {/* Readiness Overview */}
-            <div className="bg-white rounded-xl shadow-sm border border-educaro-border p-6">
-              <h3 className="text-lg font-bold text-educaro-primary mb-6">Readiness Overview</h3>
+            <div className="bg-white rounded-xl shadow-xs border border-border p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-6">Readiness Overview</h3>
               <div className="space-y-6">
                 {gapsData?.readinessScores?.map((score) => {
                   let colorClass = 'bg-[#6B7280]';
                   if (score.status === 'EXCELLENT') colorClass = 'bg-green-500';
                   if (score.status === 'ON_TRACK') colorClass = 'bg-green-400';
                   if (score.status === 'ATTENTION_NEEDED') colorClass = 'bg-yellow-500';
-                  if (score.status === 'ACTION_REQUIRED') colorClass = 'bg-educaro-icon0';
+                  if (score.status === 'ACTION_REQUIRED') colorClass = 'bg-amber-500';
 
                   return (
                     <div key={score.category} className="group">
                       <div className="flex justify-between text-sm font-semibold mb-2">
-                        <span className="text-educaro-primary capitalize">{score.category.toLowerCase()}</span>
-                        <span className="text-educaro-primary">{score.scorePct}%</span>
+                        <span className="text-gray-900 capitalize">{score.category.toLowerCase()}</span>
+                        <span className="text-gray-900">{score.scorePct}%</span>
                       </div>
                       <div className="w-full bg-[#E5E7EB] rounded-full h-2 mb-2">
                         <div className={`h-2 rounded-full transition-all ${colorClass}`} style={{ width: `${score.scorePct}%` }} />
                       </div>
-                      <p className="text-xs text-educaro-muted leading-relaxed bg-educaro-secondary p-2 rounded border border-educaro-border">
+                      <p className="text-xs text-gray-700 leading-relaxed bg-gray-50 p-2 rounded border border-border">
                         {score.reason}
                       </p>
                     </div>
@@ -248,15 +248,15 @@ export const RecommendationsDashboard: React.FC = () => {
             </div>
 
             {/* AI Gap Analysis Groups */}
-            <div className="bg-white rounded-xl shadow-sm border border-educaro-border p-6">
-              <h3 className="text-lg font-bold text-educaro-primary mb-4">AI Gap Analysis</h3>
+            <div className="bg-white rounded-xl shadow-xs border border-border p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">AI Gap Analysis</h3>
               <div className="space-y-3">
                 {Object.entries(gapsData?.groupedRecommendations || {}).map(([key, list]) => {
                   if (!list || list.length === 0) return null;
                   return (
-                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-educaro-secondary border border-educaro-border">
-                      <span className="text-sm font-medium text-educaro-muted capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E5E7EB] text-educaro-primary">
+                    <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-border">
+                      <span className="text-sm font-medium text-gray-700 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <span className="badge-soft text-xs">
                         {list.length} gap{list.length !== 1 ? 's' : ''}
                       </span>
                     </div>

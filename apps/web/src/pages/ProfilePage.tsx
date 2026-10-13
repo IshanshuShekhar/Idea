@@ -213,7 +213,7 @@ export const ProfilePage: React.FC = () => {
       <main className="flex-1 max-w-5xl w-full mx-auto p-6 space-y-6">
         {/* Error notification */}
         {error && (
-          <div className="p-4 rounded-xl bg-educaro-icon0/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-3">
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
             <div>
               <div className="font-semibold">Notice</div>

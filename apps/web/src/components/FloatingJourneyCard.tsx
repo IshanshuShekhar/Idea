@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useJourney } from '../context/JourneyContext';
 import { ArrowRight, Compass, ShieldCheck, Mail, Sparkles } from 'lucide-react';
+import { getResumeRoute } from '../utils/workflow';
 
 export const FloatingJourneyCard: React.FC = () => {
   const { user } = useAuth();
@@ -11,10 +12,18 @@ export const FloatingJourneyCard: React.FC = () => {
   const navigate = useNavigate();
   const [emailInput, setEmailInput] = useState('');
 
-  const completeness = journeyState?.profileCompletenessPct ?? (user ? 45 : 82);
-  const nextActionTitle = journeyState?.nextBestAction?.title ?? (user ? 'Upload your German language certificate' : 'Upload your German language certificate');
-  const nextActionDescription = journeyState?.nextBestAction?.description ?? 'Complete your language credentials to unlock official state university matching.';
-  const targetRoute = journeyState?.nextBestAction?.targetRoute ?? '/journey/goal';
+  // Use actual saved progress percentage
+  const completeness = journeyState?.profileCompletenessPct ?? (user ? 30 : 0);
+  const targetRoute = getResumeRoute(user, journeyState);
+
+  const nextActionTitle =
+    journeyState?.nextBestAction?.title ??
+    (user ? 'Continue Your Applicant Journey' : 'Begin Your German Pathway Assessment');
+  const nextActionDescription =
+    journeyState?.nextBestAction?.description ??
+    (user
+      ? 'Resume your profile and document preparation to unlock university matching and scholarship options.'
+      : 'Create an account to start your personalized, deterministic applicant journey to Germany.');
 
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +41,6 @@ export const FloatingJourneyCard: React.FC = () => {
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className="relative w-full max-w-md mx-auto lg:max-w-none bg-[#0a0a0a]/80 backdrop-blur-3xl rounded-3xl border border-white/10 p-6 shadow-[0_0_40px_rgba(0,0,0,0.8)] text-white transition-all duration-300 hover:border-white/30"
     >
-      
       {/* Top Tag & Header */}
       <div className="flex items-center justify-between gap-2 mb-6">
         <div className="flex items-center gap-3">
@@ -41,20 +49,22 @@ export const FloatingJourneyCard: React.FC = () => {
           </div>
           <div>
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 block mb-1">
-              Active Roadmap
+              Applicant Journey
             </span>
-            <h3 className="text-sm font-display font-medium text-white tracking-widest">YOUR GERMANY JOURNEY</h3>
+            <h3 className="text-sm font-display font-medium text-white tracking-widest uppercase">
+              Your German Journey
+            </h3>
           </div>
         </div>
         <span className="text-[10px] font-medium px-3 py-1 rounded-full bg-white/10 text-white border border-white/20 uppercase tracking-widest">
-          Interactive
+          Deterministic
         </span>
       </div>
 
       {/* Profile Completeness Bar */}
       <div className="space-y-2 mb-6 bg-white/5 p-4 rounded-2xl border border-white/10">
         <div className="flex items-center justify-between text-[11px] uppercase tracking-widest">
-          <span className="font-light text-gray-400">Profile completeness</span>
+          <span className="font-light text-gray-400">Journey Progress</span>
           <span className="font-bold text-white">{completeness}%</span>
         </div>
         <div className="w-full h-1.5 rounded-full bg-gray-800 overflow-hidden">
@@ -69,7 +79,7 @@ export const FloatingJourneyCard: React.FC = () => {
       <div className="p-5 rounded-2xl bg-white/5 border border-white/10 mb-6">
         <div className="flex items-center gap-2 text-[10px] font-medium text-gray-400 uppercase tracking-[0.2em] mb-3">
           <Sparkles className="w-3.5 h-3.5 text-white" />
-          <span>NEXT BEST ACTION</span>
+          <span>CURRENT STAGE</span>
         </div>
         <p className="text-sm font-medium text-white mb-1.5">{nextActionTitle}</p>
         <p className="text-[11px] text-gray-400 leading-relaxed font-light">
@@ -77,7 +87,7 @@ export const FloatingJourneyCard: React.FC = () => {
         </p>
       </div>
 
-      {/* CTA / Email Capture */}
+      {/* CTA: Single forward action */}
       {user ? (
         <button
           onClick={() => navigate(targetRoute)}
@@ -103,7 +113,7 @@ export const FloatingJourneyCard: React.FC = () => {
             type="submit"
             className="w-full inline-flex items-center justify-between py-3.5 px-6 rounded-full bg-white text-black hover:bg-gray-200 text-sm font-medium shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all duration-300"
           >
-            <span>Initialize Profile</span>
+            <span>Start My Journey</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
@@ -117,7 +127,7 @@ export const FloatingJourneyCard: React.FC = () => {
         </span>
         <span>AI Assessment</span>
       </div>
-
     </motion.div>
   );
 };
+export default FloatingJourneyCard;

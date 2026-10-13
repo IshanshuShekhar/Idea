@@ -15,11 +15,13 @@ export const RecommendationCard: React.FC<Props> = ({ recommendation, onStatusCh
   const isRequired = recommendation.priority === 'REQUIRED';
   const isImportant = recommendation.priority === 'IMPORTANT';
 
-  const priorityColors = isRequired 
-    ? 'border-l-[#15803D] bg-educaro-icon text-educaro-accent' 
+  const priorityBadge = isRequired 
+    ? 'badge-soft' 
     : isImportant 
-      ? 'border-l-yellow-400 bg-yellow-50 text-yellow-800' 
-      : 'border-l-blue-400 bg-educaro-icon text-educaro-accent';
+      ? 'badge-warning' 
+      : 'bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-semibold';
+
+  const borderLeft = isRequired ? 'border-l-emerald-600' : isImportant ? 'border-l-amber-500' : 'border-l-blue-500';
 
   const handleAction = () => {
     if (recommendation.actionRoute) {
@@ -28,32 +30,32 @@ export const RecommendationCard: React.FC<Props> = ({ recommendation, onStatusCh
   };
 
   const handleAskAI = () => {
-    navigate(`/journey/chat?context=${encodeURIComponent(recommendation.title)}&recId=${recommendation.id}`);
+    navigate(`/consultant?context=${encodeURIComponent(recommendation.title)}&recId=${recommendation.id}`);
   };
 
   return (
-    <div className={`relative bg-white rounded-xl shadow-sm border border-educaro-border overflow-hidden flex flex-col transition-shadow hover:shadow-md border-l-4 ${priorityColors.split(' ')[0]}`}>
+    <div className={`relative bg-white rounded-xl shadow-sm border border-border overflow-hidden flex flex-col transition-shadow hover:shadow-md border-l-4 ${borderLeft}`}>
       <div className="p-5 flex-1">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center space-x-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityColors.split(' ').slice(1).join(' ')}`}>
+            <span className={priorityBadge}>
               {recommendation.priority}
             </span>
-            <span className="text-xs text-educaro-muted uppercase tracking-wider font-semibold">
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
               {recommendation.type.replace('_', ' ')}
             </span>
           </div>
           {recommendation.status === 'completed' && (
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
           )}
         </div>
         
-        <h4 className="text-lg font-semibold text-educaro-primary mb-1">{recommendation.title}</h4>
-        <p className="text-sm text-educaro-muted mb-4">{recommendation.description}</p>
+        <h4 className="text-lg font-semibold text-gray-900 mb-1">{recommendation.title}</h4>
+        <p className="text-sm text-gray-600 mb-4">{recommendation.description}</p>
 
         {showWhy && recommendation.whyExplanation && (
-          <div className="mb-4 p-3 bg-educaro-icon border border-educaro-accent/20 rounded-lg text-sm text-educaro-accent flex items-start">
-            <ShieldCheck className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5 text-educaro-accent" />
+          <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-900 flex items-start">
+            <ShieldCheck className="w-4 h-4 mr-2 flex-shrink-0 mt-0.5 text-emerald-600" />
             <p>{recommendation.whyExplanation}</p>
           </div>
         )}
@@ -61,7 +63,7 @@ export const RecommendationCard: React.FC<Props> = ({ recommendation, onStatusCh
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => setShowWhy(!showWhy)}
-            className="text-sm font-medium text-educaro-accent hover:text-educaro-accent flex items-center"
+            className="text-sm font-medium text-emerald-700 hover:text-emerald-800 flex items-center"
           >
             <Info className="w-4 h-4 mr-1" />
             {showWhy ? 'Hide explanation' : 'Why this recommendation?'}
@@ -69,18 +71,18 @@ export const RecommendationCard: React.FC<Props> = ({ recommendation, onStatusCh
         </div>
       </div>
 
-      <div className="bg-educaro-secondary px-5 py-3 border-t border-educaro-border flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-gray-50 px-5 py-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={handleAskAI}
-          className="inline-flex items-center px-3 py-1.5 border border-educaro-border shadow-sm text-sm font-medium rounded-md text-educaro-muted bg-white hover:bg-educaro-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-educaro-accent"
+          className="inline-flex items-center px-3 py-1.5 border border-border shadow-xs text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-100 focus:outline-none"
         >
-          <MessageSquare className="w-4 h-4 mr-2 text-educaro-muted" />
+          <MessageSquare className="w-4 h-4 mr-2 text-gray-500" />
           Ask AI
         </button>
         
         <button
           onClick={handleAction}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-educaro-accent hover:bg-educaro-accentHover shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-educaro-accent"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg btn-brand text-white shadow-xs"
         >
           {recommendation.actionLabel || 'Take Action'}
           <ChevronRight className="w-4 h-4 ml-1" />

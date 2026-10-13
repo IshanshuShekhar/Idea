@@ -241,7 +241,7 @@ export const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
         type="button"
         disabled={disabled}
         onClick={() => setIsOpen((prev) => !prev)}
-        className="h-10 px-3 rounded-xl border border-educaro-border bg-educaro-main text-xs sm:text-sm text-educaro-primary font-medium hover:border-educaro-accent hover:bg-educaro-secondary focus:outline-none focus:ring-1 focus:ring-educaro-accent transition-all flex items-center gap-1.5 shrink-0 select-none shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
+        className="h-10 px-3 rounded-xl border border-border bg-white text-xs sm:text-sm text-gray-900 font-medium hover:border-brand hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-brand transition-all flex items-center gap-1.5 shrink-0 select-none shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         title={`${selectedCountry.countryNameEn} (+${selectedCountry.countryCallingCode})`}
@@ -249,9 +249,9 @@ export const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
         <span className="text-base leading-none" role="img" aria-label={selectedCountry.countryNameEn}>
           {selectedCountry.flag}
         </span>
-        <span className="font-semibold text-educaro-primary">+{selectedCountry.countryCallingCode}</span>
+        <span className="font-semibold text-gray-900">+{selectedCountry.countryCallingCode}</span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-educaro-accent transition-transform duration-200 ${
+          className={`w-3.5 h-3.5 text-brand transition-transform duration-200 ${
             isOpen ? 'rotate-180' : ''
           }`}
         />
@@ -268,28 +268,28 @@ export const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
         value={nationalNumber}
         onChange={handleNationalNumberChange}
         placeholder={placeholder}
-        className="flex-1 h-10 px-4 rounded-xl border border-educaro-border bg-educaro-main text-xs sm:text-sm text-educaro-primary placeholder-[#6B7280] focus:outline-none focus:ring-1 focus:ring-educaro-accent transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
+        className="flex-1 h-10 px-4 rounded-xl border border-border bg-white text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand transition-all shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
       />
 
       {/* Searchable Dropdown Popover */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 z-50 w-72 sm:w-80 bg-educaro-main border border-educaro-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col">
+        <div className="absolute left-0 top-full mt-1.5 z-50 w-72 sm:w-80 bg-white border border-border rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col">
           {/* Search Header */}
-          <div className="p-2.5 border-b border-educaro-border bg-educaro-main relative">
-            <Search className="w-3.5 h-3.5 text-educaro-accent absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="p-2.5 border-b border-border bg-white relative">
+            <Search className="w-3.5 h-3.5 text-brand absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search country or code (e.g. India, +49)..."
-              className="w-full pl-8 pr-7 py-1.5 bg-educaro-main border border-educaro-border rounded-lg text-xs text-educaro-primary placeholder-[#6B7280] focus:outline-none focus:ring-1 focus:ring-educaro-accent transition-all"
+              className="w-full pl-8 pr-7 py-1.5 bg-white border border-border rounded-lg text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand transition-all"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 rounded text-educaro-muted hover:text-educaro-primary"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -297,7 +297,7 @@ export const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
           </div>
 
           {/* Countries List */}
-          <div className="max-h-60 overflow-y-auto divide-y divide-[#E5E7EB]/40" role="listbox">
+          <div className="max-h-60 overflow-y-auto divide-y divide-gray-100" role="listbox">
             {filteredCountries.length > 0 ? (
               filteredCountries.map((country) => {
                 const isSelected = country.countryCode === selectedCountry.countryCode;
@@ -309,8 +309,8 @@ export const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
                     onClick={() => handleSelectCountry(country)}
                     className={`w-full px-3.5 py-2 text-left text-xs flex items-center justify-between transition-colors ${
                       isSelected
-                        ? 'bg-educaro-icon text-educaro-primary font-semibold'
-                        : 'text-educaro-primary hover:bg-educaro-secondary'
+                        ? 'bg-emerald-50 text-brand font-semibold'
+                        : 'text-gray-900 hover:bg-gray-50'
                     }`}
                     role="option"
                     aria-selected={isSelected}
@@ -322,16 +322,16 @@ export const CountryPhoneInput: React.FC<CountryPhoneInputProps> = ({
                       <span className="truncate">{country.countryNameEn}</span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="font-mono text-educaro-muted font-medium text-[11px]">
+                      <span className="font-mono text-gray-500 font-medium text-[11px]">
                         +{country.countryCallingCode}
                       </span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-educaro-accent" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-brand" />}
                     </div>
                   </button>
                 );
               })
             ) : (
-              <div className="p-4 text-center text-xs text-educaro-muted">
+              <div className="p-4 text-center text-xs text-gray-500">
                 No country found matching &quot;{searchQuery}&quot;
               </div>
             )}

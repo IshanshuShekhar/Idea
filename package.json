@@ -16,12 +16,5 @@
   "devDependencies": {
     "puppeteer": "^25.13.0",
     "typescript": "^5.3.3"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "puppeteer",
-      "better-sqlite3",
-      "esbuild"
-    ]
   }
 }

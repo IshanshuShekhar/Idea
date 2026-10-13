@@ -1,9 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { WORKFLOW_STEPS } from '@educaro/shared';
 
 interface StepHeaderProps {
-  currentStepIndex: number; // 1-indexed (e.g. 1 to 6)
+  currentStepIndex: number; // 1-indexed (e.g. 1 to 10)
   totalSteps?: number;
   stepTitle: string;
   stepSubtitle?: string;
@@ -12,11 +13,12 @@ interface StepHeaderProps {
   canContinue?: boolean;
   onContinue?: () => void;
   continueLabel?: string;
+  showPrimaryButton?: boolean;
 }
 
 export const StepHeader: React.FC<StepHeaderProps> = ({
   currentStepIndex,
-  totalSteps = 8,
+  totalSteps = 10,
   stepTitle,
   stepSubtitle,
   backRoute,
@@ -24,6 +26,7 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
   canContinue = true,
   onContinue,
   continueLabel = 'Continue →',
+  showPrimaryButton = true,
 }) => {
   const navigate = useNavigate();
 
@@ -43,27 +46,15 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
     }
   };
 
-  const stepsList = [
-    { num: 1, label: 'Home' },
-    { num: 2, label: 'How It Works' },
-    { num: 3, label: 'Documents' },
-    { num: 4, label: 'Qualification' },
-    { num: 5, label: 'Recommendation' },
-    { num: 6, label: 'Candidate Details' },
-    { num: 7, label: 'CV Generation' },
-    { num: 8, label: 'Premium' },
-  ];
-
   return (
-    <div className="w-full bg-educaro-main border-b border-educaro-border py-4 px-4 sm:px-6 lg:px-8 shadow-xs">
-      <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        
+    <div className="w-full bg-white border-b border-border py-4 px-4 sm:px-6 lg:px-8 shadow-xs">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         {/* Left: Back button + Step info */}
         <div className="flex items-center gap-3">
           {backRoute && (
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-educaro-main hover:bg-educaro-secondary text-xs font-medium text-educaro-primary border border-educaro-border transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white hover:bg-gray-50 text-xs font-medium text-gray-700 border border-border transition-colors shadow-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -72,49 +63,49 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-educaro-icon text-educaro-accent border border-educaro-border">
+              <span className="badge-soft normal-case text-xs">
                 Step {currentStepIndex} of {totalSteps}
               </span>
-              <h1 className="text-base sm:text-lg font-bold text-educaro-primary">{stepTitle}</h1>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900">{stepTitle}</h1>
             </div>
             {stepSubtitle && (
-              <p className="text-xs text-educaro-muted mt-0.5">{stepSubtitle}</p>
+              <p className="text-xs text-gray-600 mt-0.5">{stepSubtitle}</p>
             )}
           </div>
         </div>
 
-        {/* Right: Steps tracker pills + Continue button */}
+        {/* Right: Steps tracker pills + Primary Continue button */}
         <div className="flex items-center gap-4 justify-between md:justify-end">
-          {/* Step dots / indicators */}
+          {/* Step dots / indicators for the 10 workflow steps */}
           <div className="hidden sm:flex items-center gap-1.5">
-            {stepsList.map((s) => {
-              const isDone = s.num < currentStepIndex;
-              const isCurrent = s.num === currentStepIndex;
+            {WORKFLOW_STEPS.map((s) => {
+              const isDone = s.order < currentStepIndex;
+              const isCurrent = s.order === currentStepIndex;
               return (
                 <div
-                  key={s.num}
-                  className={`w-2.5 h-2.5 rounded-full transition-all ${
+                  key={s.id}
+                  className={`h-2 rounded-full transition-all ${
                     isCurrent
-                      ? 'w-6 bg-educaro-accent'
+                      ? 'w-5 bg-brand'
                       : isDone
-                      ? 'bg-emerald-600'
-                      : 'bg-[#E5E7EB]'
+                      ? 'w-2 bg-emerald-600'
+                      : 'w-2 bg-gray-200'
                   }`}
-                  title={`${s.num}. ${s.label}`}
+                  title={`${s.order}. ${s.shortTitle}`}
                 />
               );
             })}
           </div>
 
-          {/* Continue button */}
-          {(nextRoute || onContinue) && (
+          {/* Primary Forward-Navigation Action */}
+          {showPrimaryButton && (nextRoute || onContinue) && (
             <button
               onClick={handleNext}
               disabled={!canContinue}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold shadow-xs transition-all ${
                 canContinue
-                  ? 'bg-educaro-accent text-black hover:bg-educaro-accentHover'
-                  : 'bg-[#E5E7EB] text-educaro-muted cursor-not-allowed opacity-60'
+                  ? 'btn-brand text-white hover:opacity-95'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
               }`}
             >
               <span>{continueLabel}</span>
@@ -122,8 +113,8 @@ export const StepHeader: React.FC<StepHeaderProps> = ({
             </button>
           )}
         </div>
-
       </div>
     </div>
   );
 };
+export default StepHeader;

@@ -63,16 +63,17 @@ export const GoalIntakePage: React.FC = () => {
     setIsSubmitting(true);
     try {
       if (token) {
-        await fetch('/api/intake/message', {
+        await fetch('/api/profile/field', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            step: 'GOAL',
-            message: selectedPathway,
-            language: 'en',
+            category: 'GOAL',
+            fieldKey: 'targetPathway',
+            value: selectedPathway,
+            provenance: 'APPLICANT_PROVIDED',
           }),
         });
         await refreshJourney();
@@ -87,7 +88,7 @@ export const GoalIntakePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-educaro-main flex flex-col text-educaro-primary">
+    <div className="min-h-screen bg-educaro-secondary flex flex-col text-gray-900">
       <Navbar onToggleTracePanel={() => setIsTraceOpen(!isTraceOpen)} isTraceOpen={isTraceOpen} />
       
       <StepHeader
@@ -97,21 +98,21 @@ export const GoalIntakePage: React.FC = () => {
         stepSubtitle="Select your target pathway to Germany to tailor your requirements."
         nextRoute="/journey/details"
         onContinue={handleContinue}
-        continueLabel={isSubmitting ? 'Saving Goal...' : 'Continue to Profile Details →'}
+        continueLabel={isSubmitting ? 'Saving Goal...' : 'Continue to Applicant Profile →'}
       />
 
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
         
         {/* Intro */}
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-educaro-icon text-educaro-accent border border-educaro-border text-xs font-semibold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full badge-soft text-xs font-semibold uppercase tracking-wider mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Step 1: Define Your Pathway</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-educaro-primary tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
             What is your primary goal in Germany?
           </h2>
-          <p className="text-xs sm:text-sm text-educaro-muted mt-2">
+          <p className="text-xs sm:text-sm text-gray-600 mt-2">
             Educaro provides specialized immigration guidance, university matching, and dual employer contracts across three pathways.
           </p>
         </div>
@@ -125,58 +126,53 @@ export const GoalIntakePage: React.FC = () => {
               <div
                 key={item.id}
                 onClick={() => setSelectedPathway(item.id)}
-                className={`relative rounded-3xl p-[1px] flex flex-col justify-between cursor-pointer transition-all duration-500 overflow-hidden ${
+                className={`relative rounded-3xl p-[1px] flex flex-col justify-between cursor-pointer transition-all duration-300 overflow-hidden ${
                   isSelected
-                    ? 'shadow-[0_0_40px_rgba(255,255,255,0.1)] transform -translate-y-2'
-                    : 'hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] hover:-translate-y-1'
+                    ? 'shadow-md transform -translate-y-1'
+                    : 'hover:shadow-sm hover:-translate-y-0.5'
                 }`}
               >
-                {/* Animated glowing border effect */}
-                <div className={`absolute inset-0 transition-opacity duration-500 ${isSelected ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="absolute inset-[-50%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#000000_0%,#ffffff_50%,#000000_100%)] opacity-30" />
-                </div>
-                
-                <div className={`relative h-full rounded-[23px] p-6 flex flex-col justify-between transition-colors duration-500 ${
-                  isSelected ? 'bg-[#0a0a0a]' : 'bg-[#121212]'
+                <div className={`relative h-full rounded-[23px] p-6 flex flex-col justify-between transition-colors duration-300 border ${
+                  isSelected ? 'bg-white border-brand ring-2 ring-brand/20' : 'bg-white border-border hover:border-brand/40'
                 }`}>
                   <div>
                     <div className="flex items-center justify-between mb-4">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold transition-all duration-500 ${
-                        isSelected ? 'bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.5)]' : 'bg-white/5 text-[#888888] border border-white/10'
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold transition-all duration-300 ${
+                        isSelected ? 'bg-brand text-white shadow-brand' : 'bg-gray-100 text-gray-600 border border-border'
                       }`}>
                         <Icon className="w-6 h-6" />
                       </div>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                        isSelected ? 'border-white bg-white' : 'border-white/20'
+                        isSelected ? 'border-brand bg-brand' : 'border-gray-300'
                       }`}>
-                        {isSelected && <CheckCircle2 className="w-4 h-4 text-black" />}
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-white" />}
                       </div>
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-educaro-accent block mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 block mb-1">
                     {item.subtitle}
                   </span>
-                  <h3 className="text-base font-bold text-educaro-primary leading-snug mb-2">
+                  <h3 className="text-base font-bold text-gray-900 leading-snug mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-educaro-muted leading-relaxed mb-4">
+                  <p className="text-xs text-gray-600 leading-relaxed mb-4">
                     {item.description}
                   </p>
 
-                  <div className="space-y-1.5 pt-3 border-t border-educaro-border">
+                  <div className="space-y-1.5 pt-3 border-t border-border">
                     {item.highlights.map((hl, i) => (
-                      <div key={i} className="text-[11px] text-educaro-primary flex items-center gap-1.5">
-                        <span className="text-educaro-accent font-bold">✓</span>
+                      <div key={i} className="text-[11px] text-gray-800 flex items-center gap-1.5">
+                        <span className="text-brand font-bold">✓</span>
                         <span>{hl}</span>
                       </div>
                     ))}
                   </div>
-                </div>
 
-                <div className="mt-6 pt-3 border-t border-educaro-border flex items-center justify-between text-[11px]">
-                  <span className="text-educaro-muted">Language:</span>
-                  <span className="font-semibold text-educaro-primary">{item.minGerman}</span>
+                  <div className="mt-6 pt-3 border-t border-border flex items-center justify-between text-[11px]">
+                    <span className="text-gray-500">Language:</span>
+                    <span className="font-semibold text-gray-900">{item.minGerman}</span>
+                  </div>
                 </div>
               </div>
             );
@@ -184,19 +180,19 @@ export const GoalIntakePage: React.FC = () => {
         </div>
 
         {/* Bottom CTA */}
-        <div className="bg-educaro-secondary rounded-2xl border border-educaro-border p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-border p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs">
           <div>
-            <h4 className="text-sm font-bold text-educaro-primary">Selected Pathway: {selectedPathway}</h4>
-            <p className="text-xs text-educaro-muted mt-0.5">
-              Next: Our Intake Agent will collect your personal details, degree, and skills through an interactive chat.
+            <h4 className="text-sm font-bold text-gray-900">Selected Pathway: {selectedPathway}</h4>
+            <p className="text-xs text-gray-600 mt-0.5">
+              Next: Complete your comprehensive applicant profile with personal details, qualifications, and preferences.
             </p>
           </div>
           <button
             onClick={handleContinue}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs sm:text-sm font-semibold shadow-xs transition-colors shrink-0"
+            className="btn-brand text-white text-xs sm:text-sm shrink-0 inline-flex items-center gap-2"
           >
-            <span>{isSubmitting ? 'Saving Goal...' : 'Continue to Profile Chat →'}</span>
+            <span>{isSubmitting ? 'Saving Goal...' : 'Continue to Applicant Profile →'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { OrchestratorService } from './orchestrator.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Request } from 'express';
@@ -17,21 +17,6 @@ export class OrchestratorController {
   async getDemoState(@Req() req: Request) {
     const userId = (req.query.userId as string) || 'demo-user';
     return this.orchestratorService.getJourneyState(userId);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('next-step')
-  async getNextStep(@Req() req: Request & { user: any }) {
-    return this.orchestratorService.determineNextStep(req.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('chat')
-  async processChat(
-    @Req() req: Request & { user: any },
-    @Body() body: { message: string; history?: any[] }
-  ) {
-    return this.orchestratorService.processChat(req.user.id, body.message, body.history || []);
   }
 
   @UseGuards(JwtAuthGuard)

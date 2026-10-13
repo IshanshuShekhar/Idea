@@ -35,6 +35,7 @@
     --ring: oklch(0.58 0.14 150 / 0.5);
     --destructive: oklch(0.58 0.22 25);
     --warning: oklch(0.82 0.14 85);
+    --warning-foreground: oklch(0.38 0.12 85);
     
     /* ---------- Elevation system ---------- */
     --shadow-xs: 0 1px 2px oklch(0.22 0.025 255 / 0.04);
@@ -71,6 +72,7 @@
     --brand-soft: oklch(0.3 0.05 150);
     --ring: oklch(0.68 0.15 150 / 0.5);
     --warning: oklch(0.75 0.14 85);
+    --warning-foreground: oklch(0.85 0.12 85);
   }
 
   * {
@@ -134,6 +136,17 @@
   .btn-brand:active {
     transform: scale(0.97);
   }
+  .btn-brand:disabled,
+  .btn-brand[disabled] {
+    background: var(--muted) !important;
+    color: var(--muted-foreground) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    filter: none !important;
+    transform: none !important;
+  }
 
   .btn-ghost-brand {
     background: var(--brand-soft);
@@ -147,6 +160,15 @@
   }
   .btn-ghost-brand:active {
     transform: scale(0.97);
+  }
+  .btn-ghost-brand:disabled,
+  .btn-ghost-brand[disabled] {
+    background: var(--muted) !important;
+    color: var(--muted-foreground) !important;
+    border: 1px solid var(--border) !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+    transform: none !important;
   }
 
   .badge-soft {

@@ -43,21 +43,21 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
   };
 
   return (
-    <div className="bg-educaro-main rounded-2xl border border-educaro-border overflow-hidden shadow-xs">
+    <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-xs">
       {/* Header bar */}
-      <div className="p-4 bg-educaro-secondary border-b border-educaro-border flex items-center justify-between">
+      <div className="p-4 bg-gray-50 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-educaro-accent" />
+          <FileText className="w-5 h-5 text-brand" />
           <div>
-            <h3 className="text-sm font-bold text-educaro-primary">{document.filename}</h3>
-            <p className="text-[11px] text-educaro-muted">
+            <h3 className="text-sm font-bold text-gray-900">{document.filename}</h3>
+            <p className="text-[11px] text-gray-600">
               Extracted via OCR Document Intelligence • AI Confidence: {(document.overallConfidence * 100).toFixed(0)}%
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 rounded-full bg-educaro-icon text-educaro-accent border border-educaro-accent/20 font-medium flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5 text-educaro-accent" />
+          <span className="badge-soft text-xs flex items-center gap-1">
+            <CheckCircle2 className="w-3.5 h-3.5" />
             {confirmedKeys.size} of {fields.length} Confirmed
           </span>
         </div>
@@ -67,13 +67,13 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-[#E5E7EB]">
         
         {/* Left Side: Document Preview (Certificate Image) */}
-        <div className="lg:col-span-6 p-4 bg-educaro-main flex flex-col items-center justify-center">
-          <div className="text-xs font-semibold text-educaro-muted uppercase tracking-wider mb-2 self-start flex items-center gap-1.5">
+        <div className="lg:col-span-6 p-4 bg-gray-50 flex flex-col items-center justify-center">
+          <div className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2 self-start flex items-center gap-1.5">
             <span>Original Document Proof</span>
-            <span className="text-[10px] lowercase text-educaro-accent font-mono">(source verified)</span>
+            <span className="text-[10px] lowercase text-emerald-700 font-mono">(source verified)</span>
           </div>
           
-          <div className="w-full max-h-[520px] overflow-auto rounded-xl border border-educaro-border shadow-inner bg-white p-2 flex items-center justify-center flex-col">
+          <div className="w-full max-h-[520px] overflow-auto rounded-xl border border-border shadow-inner bg-white p-2 flex items-center justify-center flex-col">
             {document.previewUrl ? (
               document.previewUrl.toLowerCase().endsWith('.pdf') || document.filename?.toLowerCase().endsWith('.pdf') ? (
                 <>
@@ -84,8 +84,8 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
                     title="Document preview"
                     className="rounded shadow-xs border-0"
                   />
-                  <div className="mt-2 text-[11px] text-educaro-muted">
-                    Preview unavailable or not rendering? <a href={document.previewUrl} target="_blank" rel="noopener noreferrer" className="text-educaro-accent hover:underline">Download/Open PDF</a>
+                  <div className="mt-2 text-[11px] text-gray-600">
+                    Preview unavailable or not rendering? <a href={document.previewUrl} target="_blank" rel="noopener noreferrer" className="text-brand font-semibold hover:underline">Download/Open PDF</a>
                   </div>
                 </>
               ) : (
@@ -96,12 +96,12 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
                 />
               )
             ) : (
-              <div className="p-12 text-center text-educaro-muted text-xs">
+              <div className="p-12 text-center text-gray-500 text-xs">
                 No visual preview available
               </div>
             )}
           </div>
-          <p className="text-[11px] text-educaro-muted mt-2 italic text-center">
+          <p className="text-[11px] text-gray-600 mt-2 italic text-center">
             Review the extracted values against the original certificate image on the left.
           </p>
         </div>
@@ -109,16 +109,16 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
         {/* Right Side: Extracted Fields Review & Confirmation */}
         <div className="lg:col-span-6 p-5 flex flex-col justify-between space-y-4">
           <div>
-            <div className="text-xs font-semibold text-educaro-muted uppercase tracking-wider mb-3 flex items-center justify-between">
+            <div className="text-xs font-semibold text-gray-700 uppercase tracking-wider mb-3 flex items-center justify-between">
               <span>Extracted Fields & Confidence</span>
-              <span className="text-[11px] text-educaro-accent font-normal">Click checkmark to confirm</span>
+              <span className="text-[11px] text-emerald-800 font-semibold">Click checkmark to confirm</span>
             </div>
 
             {fields.length === 0 ? (
-              <div className="p-8 text-center bg-educaro-main rounded-2xl border border-dashed border-educaro-accent flex flex-col items-center">
-                <ShieldAlert className="w-8 h-8 text-rose-400 mb-2" />
-                <h4 className="text-sm font-bold text-educaro-primary">Extraction Failed or Pending</h4>
-                <p className="text-xs text-educaro-muted mt-1 max-w-[200px]">
+              <div className="p-8 text-center bg-white rounded-2xl border border-dashed border-gray-300 flex flex-col items-center">
+                <ShieldAlert className="w-8 h-8 text-rose-500 mb-2" />
+                <h4 className="text-sm font-bold text-gray-900">Extraction Failed or Pending</h4>
+                <p className="text-xs text-gray-600 mt-1 max-w-[200px]">
                   The AI could not confidently extract fields from this document.
                 </p>
               </div>
@@ -134,14 +134,14 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
                       key={field.key}
                       className={`p-3.5 rounded-xl border transition-all ${
                         isConfirmed
-                          ? 'bg-educaro-main border-educaro-accent/30/80 shadow-xs'
-                          : 'bg-educaro-main border-educaro-border hover:border-educaro-accent'
+                          ? 'bg-emerald-50/50 border-emerald-300 shadow-xs'
+                          : 'bg-white border-border hover:border-brand/40'
                       }`}
                     >
                       {/* Field Header */}
                       <div className="flex items-center justify-between gap-2 mb-1.5">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-bold text-educaro-primary">{field.label}</span>
+                          <span className="text-xs font-bold text-gray-900">{field.label}</span>
                           <ProvenanceBadge
                             provenance={field.provenance}
                             confidence={field.confidence}
@@ -156,7 +156,7 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
                                 setEditingKey(field.key);
                                 setEditValues((prev) => ({ ...prev, [field.key]: field.value }));
                               }}
-                              className="p-1 rounded text-educaro-muted hover:text-educaro-primary hover:bg-educaro-secondary transition-colors"
+                              className="p-1 rounded text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                               title="Edit value"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
@@ -168,7 +168,7 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
                             className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
                               isConfirmed
                                 ? 'bg-emerald-600 text-white shadow-xs'
-                                : 'bg-educaro-accent hover:bg-educaro-accentHover text-black'
+                                : 'btn-brand text-white'
                             }`}
                             title="Confirm field"
                           >
@@ -185,22 +185,22 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
                             type="text"
                             value={currentVal}
                             onChange={(e) => handleEditChange(field.key, e.target.value)}
-                            className="flex-1 px-3 py-1.5 rounded-lg border border-educaro-accent bg-white text-xs text-educaro-primary focus:outline-none focus:ring-1 focus:ring-educaro-accent"
+                            className="flex-1 px-3 py-1.5 rounded-lg border border-border bg-white text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-brand"
                           />
                           <button
                             onClick={() => handleConfirm(field.key, currentVal)}
-                            className="px-2.5 py-1.5 rounded-lg bg-educaro-accent text-black text-xs font-medium"
+                            className="btn-brand text-white px-2.5 py-1.5 rounded-lg text-xs font-medium"
                           >
                             Save
                           </button>
                         </div>
                       ) : (
-                        <p className="text-xs font-semibold text-educaro-primary">{field.value}</p>
+                        <p className="text-xs font-semibold text-gray-900">{field.value}</p>
                       )}
 
                       {/* Source Snippet */}
                       {field.sourceSnippet && (
-                        <p className="mt-1 text-[11px] text-educaro-muted bg-educaro-secondary/60 px-2 py-1 rounded border border-educaro-border/40 italic font-mono">
+                        <p className="mt-1 text-[11px] text-gray-600 bg-gray-100 px-2 py-1 rounded border border-gray-200 italic font-mono">
                           "{field.sourceSnippet}"
                         </p>
                       )}
@@ -211,8 +211,8 @@ export const SideBySideReview: React.FC<SideBySideReviewProps> = ({
             )}
           </div>
 
-          <div className="p-3 bg-educaro-icon rounded-xl border border-educaro-border text-[11px] text-educaro-primary flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-educaro-accent shrink-0" />
+          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-950 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-700 shrink-0" />
             <span>
               Once confirmed, extracted fields are converted to <strong>Applicant Provided</strong> and used in the deterministic qualification calculation.
             </span>

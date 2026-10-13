@@ -40,9 +40,8 @@ export const VideoIntroPage: React.FC = () => {
   const { refreshJourney } = useJourney();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'transcript' | 'upload' | 'record'>('transcript');
+  const [activeTab, setActiveTab] = useState<'record' | 'upload'>('record');
   const [isTraceOpen, setIsTraceOpen] = useState(false);
-  const [transcriptInput, setTranscriptInput] = useState<string>('');
 
   // Webcam recording state
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -277,58 +276,8 @@ export const VideoIntroPage: React.FC = () => {
     }
   };
 
-  const sampleRahulTranscript =
-    'Hi, I am Rahul Sharma. I completed my B.Tech in Computer Science in 2021 and have 3 years of experience as a software engineer in India. My motivation for moving to Germany is to pursue advanced opportunities in software engineering and cloud systems, while learning German (currently at B1 Goethe-Zertifikat) and building my long-term career under the EU Blue Card program.';
-
-  const handleProcessTranscript = async (textToProcess?: string) => {
-    const text = textToProcess || transcriptInput;
-    if (!text.trim()) {
-      alert('Please enter or paste your introduction transcript first.');
-      return;
-    }
-
-    setIsProcessing(true);
-    setProcessingStage('Extracting motivation, goals, and background via LLM...');
-
-    try {
-      const response = await fetch('/api/video/transcript', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ transcript: text }),
-      });
-
-      if (!response.ok) {
-        let message = '';
-        try {
-          const errData = await response.json();
-          message = errData.message;
-        } catch {
-          // fallback
-        }
-        throw new Error(message || `Failed to process transcript (HTTP ${response.status})`);
-      }
-
-      const data = await response.json();
-      setTranscript(data.transcript);
-      setExtractedFields(data.extractedFields || []);
-      setPreviewVideoUrl(data.videoUrl);
-      setModelUsed('OpenAI-compatible LLM');
-      setIsCompleted(true);
-
-      await refreshJourney();
-    } catch (err: any) {
-      console.error('Transcript processing error:', err);
-      alert('Error during transcript extraction: ' + (err.message || 'Please try again.'));
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-educaro-main flex flex-col text-educaro-primary">
+    <div className="min-h-screen bg-educaro-secondary flex flex-col text-gray-900">
       <Navbar onToggleTracePanel={() => setIsTraceOpen(!isTraceOpen)} isTraceOpen={isTraceOpen} />
 
       <StepHeader
@@ -336,7 +285,7 @@ export const VideoIntroPage: React.FC = () => {
         totalSteps={12}
         stepTitle="Video Introduction"
         stepSubtitle="Record a short video to extract communication skills and motivation (Optional)."
-        backRoute="/journey/chat"
+        backRoute="/journey/details"
         nextRoute="/journey/documents"
         continueLabel={isCompleted ? 'Continue to Document Upload →' : 'Skip & Continue to Document Upload →'}
       />
@@ -344,18 +293,18 @@ export const VideoIntroPage: React.FC = () => {
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
         
         {/* Top Information Card & Skip Option */}
-        <div className="bg-educaro-main rounded-3xl border border-educaro-border p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-white rounded-3xl border border-border p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-educaro-icon text-educaro-accent border border-educaro-border">
+              <span className="badge-soft text-[10px]">
                 Step 4 of 8 • Optional
               </span>
               <ProvenanceBadge provenance={Provenance.AI_EXTRACTED} sourceText="Whisper STT + LLM Extraction" />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-educaro-primary">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
               Spoken Candidate Introduction
             </h2>
-            <p className="text-xs text-educaro-muted max-w-xl">
+            <p className="text-xs text-gray-600 max-w-xl">
               Record a 45–60 second introduction or upload a video clip. Our STT engine transcribes your speech, extracts your motivation and career goals, and indexes them with strict <strong>AI-Extracted</strong> provenance.
             </p>
           </div>
@@ -364,36 +313,36 @@ export const VideoIntroPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/journey/documents')}
-              className="px-4 py-2 rounded-full border border-educaro-border bg-educaro-main hover:bg-educaro-secondary text-xs font-semibold text-educaro-muted hover:text-educaro-primary transition-colors"
+              className="btn-ghost-brand text-xs"
             >
               Skip this step for now →
             </button>
-            <span className="text-[10px] text-educaro-muted">You can record anytime later</span>
+            <span className="text-[10px] text-gray-500">You can record anytime later</span>
           </div>
         </div>
 
         {/* Video Capture & Processing Section */}
         {!isCompleted ? (
-          <div className="bg-educaro-main rounded-3xl border border-educaro-border p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="bg-white rounded-3xl border border-border p-6 sm:p-8 shadow-xs space-y-6">
             
             {/* Tab Selection */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-educaro-border pb-4 gap-3">
-              <div className="flex items-center gap-2 bg-educaro-main p-1 rounded-2xl border border-educaro-border flex-wrap">
+            <div className="flex items-center justify-between border-b border-border pb-4">
+              <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-2xl border border-border">
                 <button
                   type="button"
                   data-button-size="compact"
                   onClick={() => {
-                    setActiveTab('transcript');
-                    stopCamera();
+                    setActiveTab('record');
+                    if (!stream && !recordedBlob) startCamera();
                   }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeTab === 'transcript'
-                      ? 'bg-educaro-accent text-black shadow-xs'
-                      : 'text-educaro-muted hover:text-educaro-primary'
+                    activeTab === 'record'
+                      ? 'btn-brand text-white shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Paste Transcript (Primary)</span>
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Record with Webcam</span>
                 </button>
                 <button
                   type="button"
@@ -404,89 +353,27 @@ export const VideoIntroPage: React.FC = () => {
                   }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                     activeTab === 'upload'
-                      ? 'bg-educaro-accent text-black shadow-xs'
-                      : 'text-educaro-muted hover:text-educaro-primary'
+                      ? 'btn-brand text-white shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   <Upload className="w-3.5 h-3.5" />
-                  <span>Upload Video</span>
-                </button>
-                <button
-                  type="button"
-                  data-button-size="compact"
-                  onClick={() => {
-                    setActiveTab('record');
-                    if (!stream && !recordedBlob) startCamera();
-                  }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeTab === 'record'
-                      ? 'bg-educaro-accent text-black shadow-xs'
-                      : 'text-educaro-muted hover:text-educaro-primary'
-                  }`}
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Webcam</span>
+                  <span>Upload Video File</span>
                 </button>
               </div>
 
               {/* Sample Intro Button */}
               <button
                 type="button"
-                onClick={() => {
-                  setTranscriptInput(sampleRahulTranscript);
-                  handleProcessTranscript(sampleRahulTranscript);
-                }}
+                onClick={() => handleProcessVideo(true)}
                 disabled={isProcessing}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-educaro-icon hover:bg-[#E5E7EB] text-xs font-semibold text-educaro-accent border border-educaro-border transition-colors cursor-pointer"
-                title="Runs instant pipeline on pre-packaged applicant transcript sample"
+                className="hidden sm:inline-flex btn-ghost-brand text-xs"
+                title="Runs instant pipeline on pre-packaged applicant video sample"
               >
-                <Sparkles className="w-3.5 h-3.5 text-educaro-accent" />
-                <span>Fill Rahul Sharma Transcript (1-Click)</span>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Try Sample Video (1-Click)</span>
               </button>
             </div>
-
-            {/* TAB 0: TRANSCRIPT PASTE (PRIMARY) */}
-            {activeTab === 'transcript' && (
-              <div className="space-y-4 max-w-3xl mx-auto">
-                <div className="bg-educaro-main border border-educaro-border rounded-2xl p-5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-educaro-primary flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-educaro-accent" />
-                      <span>Applicant Spoken Transcript</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setTranscriptInput(sampleRahulTranscript)}
-                      className="text-[11px] text-educaro-accent hover:underline font-semibold"
-                    >
-                      Use Demo Persona Sample
-                    </button>
-                  </div>
-                  <textarea
-                    rows={6}
-                    value={transcriptInput}
-                    onChange={(e) => setTranscriptInput(e.target.value)}
-                    placeholder="Paste your spoken self-introduction or speech transcript here... (e.g., Hi, I am Rahul Sharma. I have a B.Tech in CS and 3 years software engineering experience. My goal is to work in Germany...)"
-                    className="w-full text-xs p-3 rounded-xl border border-educaro-border bg-white text-educaro-primary focus:outline-hidden focus:ring-2 focus:ring-educaro-accent/40 leading-relaxed font-sans"
-                  />
-                  <p className="text-[11px] text-educaro-muted">
-                    Our AI parses your background, motivation, and career goals directly from this text and maps them with <span className="font-semibold text-educaro-accent">AI-Extracted</span> provenance.
-                  </p>
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => handleProcessTranscript()}
-                    disabled={isProcessing || !transcriptInput.trim()}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>Extract Motivation & Goals via AI →</span>
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* TAB 1: WEBCAM RECORDING */}
             {activeTab === 'record' && (
@@ -522,7 +409,7 @@ export const VideoIntroPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={startCamera}
-                        className="px-4 py-2 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-md transition-colors"
+                        className="btn-brand text-white text-xs"
                       >
                         Enable Camera & Mic
                       </button>
@@ -532,14 +419,14 @@ export const VideoIntroPage: React.FC = () => {
                   {/* Recording indicator & timer overlay */}
                   {isRecording && (
                     <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-xs px-3 py-1.5 rounded-full text-white text-xs font-bold border border-red-500/50">
-                      <span className="w-2.5 h-2.5 rounded-full bg-educaro-icon0 animate-ping" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
                       <span>REC {recordTime}s / 60s</span>
                     </div>
                   )}
                 </div>
 
                 {cameraError && (
-                  <div className="p-3 bg-educaro-icon border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{cameraError}</span>
                   </div>
@@ -574,7 +461,7 @@ export const VideoIntroPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={resetRecording}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-educaro-main hover:bg-educaro-secondary text-educaro-primary text-xs font-semibold border border-educaro-border transition-colors"
+                        className="btn-ghost-brand text-xs"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span>Re-record</span>
@@ -584,7 +471,7 @@ export const VideoIntroPage: React.FC = () => {
                         type="button"
                         onClick={() => handleProcessVideo(false)}
                         disabled={isProcessing}
-                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-sm transition-all disabled:opacity-50"
+                        className="btn-brand text-white text-xs disabled:opacity-50"
                       >
                         <Sparkles className="w-4 h-4" />
                         <span>Transcribe & Extract Motivation →</span>
@@ -598,19 +485,19 @@ export const VideoIntroPage: React.FC = () => {
             {/* TAB 2: FILE UPLOAD */}
             {activeTab === 'upload' && (
               <div className="space-y-4 max-w-xl mx-auto">
-                <div className="border-2 border-dashed border-educaro-border hover:border-educaro-accent rounded-2xl p-8 text-center bg-educaro-main transition-colors space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-educaro-icon text-educaro-accent flex items-center justify-center mx-auto">
+                <div className="border-2 border-dashed border-border hover:border-brand rounded-2xl p-8 text-center bg-gray-50 transition-colors space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-brand flex items-center justify-center mx-auto">
                     <Upload className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-bold text-educaro-primary">
+                    <p className="text-xs font-bold text-gray-900">
                       Upload your spoken intro video
                     </p>
-                    <p className="text-[11px] text-educaro-muted">
+                    <p className="text-[11px] text-gray-600">
                       Supported formats: .mp4, .webm, .mov (Max 25MB)
                     </p>
                   </div>
-                  <label className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold cursor-pointer transition-colors">
+                  <label className="btn-brand text-white text-xs cursor-pointer">
                     <span>Browse Video File</span>
                     <input
                       type="file"
@@ -622,12 +509,12 @@ export const VideoIntroPage: React.FC = () => {
                 </div>
 
                 {selectedFile && (
-                  <div className="bg-educaro-main p-4 rounded-2xl border border-educaro-border space-y-3">
+                  <div className="bg-white p-4 rounded-2xl border border-border space-y-3">
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
-                        <Video className="w-4 h-4 text-educaro-accent" />
-                        <span className="font-semibold text-educaro-primary">{selectedFile.name}</span>
-                        <span className="text-[10px] text-educaro-muted">
+                        <Video className="w-4 h-4 text-brand" />
+                        <span className="font-semibold text-gray-900">{selectedFile.name}</span>
+                        <span className="text-[10px] text-gray-500">
                           ({(selectedFile.size / (1024 * 1024)).toFixed(1)} MB)
                         </span>
                       </div>
@@ -650,7 +537,7 @@ export const VideoIntroPage: React.FC = () => {
                       type="button"
                       onClick={() => handleProcessVideo(false)}
                       disabled={isProcessing}
-                      className="w-full py-2.5 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="btn-brand text-white text-xs w-full py-2.5 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <Sparkles className="w-4 h-4" />
                       <span>Upload, Transcribe & Extract Profile Fields →</span>
@@ -662,16 +549,16 @@ export const VideoIntroPage: React.FC = () => {
 
             {/* Processing Overlay / Status */}
             {isProcessing && (
-              <div className="p-6 bg-educaro-secondary rounded-2xl border border-educaro-accent/40 space-y-3 animate-in fade-in duration-200">
+              <div className="p-6 bg-gray-50 rounded-2xl border border-border space-y-3 animate-in fade-in duration-200">
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5 text-educaro-accent animate-spin" />
+                  <Sparkles className="w-5 h-5 text-brand animate-spin" />
                   <div>
-                    <h4 className="text-xs font-bold text-educaro-primary">AI STT & Extraction In Progress</h4>
-                    <p className="text-[11px] text-educaro-muted">{processingStage}</p>
+                    <h4 className="text-xs font-bold text-gray-900">AI STT & Extraction In Progress</h4>
+                    <p className="text-[11px] text-gray-600">{processingStage}</p>
                   </div>
                 </div>
                 <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden">
-                  <div className="bg-educaro-accent h-full w-2/3 animate-pulse" />
+                  <div className="bg-brand h-full w-2/3 animate-pulse" />
                 </div>
               </div>
             )}
@@ -680,7 +567,7 @@ export const VideoIntroPage: React.FC = () => {
           /* RESULT DISPLAY: TRANSCRIPT & EXTRACTED MOTIVATION */
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* Success Banner */}
-            <div className="bg-educaro-icon border border-educaro-accent/20 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
@@ -689,7 +576,7 @@ export const VideoIntroPage: React.FC = () => {
                   <h3 className="text-sm font-bold text-emerald-950">
                     Video Introduction Transcribed & Extracted
                   </h3>
-                  <p className="text-xs text-educaro-accent">
+                  <p className="text-xs text-emerald-800">
                     Engine: {modelUsed || 'Gemini Flash'} • 3 Motivation fields verified with strict AI-Extracted provenance
                   </p>
                 </div>
@@ -699,17 +586,17 @@ export const VideoIntroPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCompleted(false)}
-                  className="px-3.5 py-1.5 rounded-full border border-educaro-border bg-white text-xs font-semibold text-educaro-muted hover:text-educaro-primary"
+                  className="btn-ghost-brand text-xs"
                 >
                   Record New Video
                 </button>
                 <button
                   type="button"
                   onClick={() => navigate('/journey/documents')}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-xs transition-colors"
+                  className="btn-brand text-white text-xs"
                 >
                   <span>Continue to Documents</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </button>
               </div>
             </div>
@@ -718,13 +605,13 @@ export const VideoIntroPage: React.FC = () => {
               {/* Left Column: Video Preview & Full Transcript */}
               <div className="lg:col-span-6 space-y-4">
                 {/* Embedded Video */}
-                <div className="bg-educaro-main rounded-3xl border border-educaro-border p-5 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-educaro-border">
+                <div className="bg-white rounded-3xl border border-border p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
                     <div className="flex items-center gap-2">
-                      <Video className="w-4 h-4 text-educaro-accent" />
-                      <h4 className="text-xs font-bold text-educaro-primary">Applicant Spoken Video</h4>
+                      <Video className="w-4 h-4 text-brand" />
+                      <h4 className="text-xs font-bold text-gray-900">Applicant Spoken Video</h4>
                     </div>
-                    <span className="text-[10px] font-semibold text-educaro-muted">Stored in Profile</span>
+                    <span className="text-[10px] font-semibold text-gray-500">Stored in Profile</span>
                   </div>
                   {previewVideoUrl && (
                     <video
@@ -736,17 +623,17 @@ export const VideoIntroPage: React.FC = () => {
                 </div>
 
                 {/* Spoken Transcript */}
-                <div className="bg-educaro-main rounded-3xl border border-educaro-border p-5 shadow-xs space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-educaro-border">
+                <div className="bg-white rounded-3xl border border-border p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-border">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-educaro-accent" />
-                      <h4 className="text-xs font-bold text-educaro-primary">Full Spoken Transcript</h4>
+                      <FileText className="w-4 h-4 text-brand" />
+                      <h4 className="text-xs font-bold text-gray-900">Full Spoken Transcript</h4>
                     </div>
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
                       Groq AI Output
                     </span>
                   </div>
-                  <div className="p-4 bg-educaro-main rounded-2xl border border-educaro-border max-h-64 overflow-y-auto text-xs text-educaro-primary leading-relaxed italic">
+                  <div className="p-4 bg-gray-50 rounded-2xl border border-border max-h-64 overflow-y-auto text-xs text-gray-900 leading-relaxed italic">
                     &quot;{transcript}&quot;
                   </div>
                 </div>
@@ -754,13 +641,13 @@ export const VideoIntroPage: React.FC = () => {
 
               {/* Right Column: AI-Extracted Motivation Profile Fields */}
               <div className="lg:col-span-6 space-y-4">
-                <div className="bg-educaro-main rounded-3xl border border-educaro-border p-6 shadow-xs space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-educaro-border">
+                <div className="bg-white rounded-3xl border border-border p-6 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-border">
                     <div>
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-educaro-primary">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-gray-900">
                         Extracted Motivation & Goals
                       </h3>
-                      <p className="text-[11px] text-educaro-muted">
+                      <p className="text-[11px] text-gray-600">
                         Category: <strong>MOTIVATION</strong> • Seeded to applicant intake record
                       </p>
                     </div>
@@ -771,22 +658,22 @@ export const VideoIntroPage: React.FC = () => {
                     {extractedFields.map((field) => (
                       <div
                         key={field.key}
-                        className="bg-educaro-main rounded-2xl border border-educaro-border p-4 text-xs space-y-2 hover:border-educaro-accent transition-colors"
+                        className="bg-gray-50 rounded-2xl border border-border p-4 text-xs space-y-2 hover:border-brand/40 transition-colors"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="font-bold text-educaro-primary">{field.label}</span>
+                          <span className="font-bold text-gray-900">{field.label}</span>
                           <ProvenanceBadge
                             provenance={field.provenance}
                             confidence={field.confidence}
                             sourceText={field.sourceSnippet}
                           />
                         </div>
-                        <p className="text-educaro-primary font-medium leading-relaxed bg-white/50 p-2.5 rounded-xl border border-educaro-border/60">
+                        <p className="text-gray-900 font-medium leading-relaxed bg-white p-2.5 rounded-xl border border-border">
                           {field.value}
                         </p>
                         {field.sourceSnippet && (
-                          <p className="text-[11px] text-educaro-muted">
-                            <span className="font-semibold text-educaro-accent">Source quote:</span> &quot;
+                          <p className="text-[11px] text-gray-600">
+                            <span className="font-semibold text-emerald-800">Source quote:</span> &quot;
                             {field.sourceSnippet}&quot;
                           </p>
                         )}
@@ -798,7 +685,7 @@ export const VideoIntroPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => navigate('/journey/documents')}
-                      className="w-full py-3 rounded-full bg-educaro-accent hover:bg-educaro-accentHover text-black text-xs font-bold shadow-xs transition-colors flex items-center justify-center gap-2"
+                      className="btn-brand text-white text-xs w-full py-3 flex items-center justify-center gap-2"
                     >
                       <span>Proceed to Step 5: Document Review</span>
                       <ArrowRight className="w-3.5 h-3.5" />
